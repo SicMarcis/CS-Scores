@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Scores"
 include(":app")
- 
+include(":feature:list:domain")
+include(":feature:list:data")
+include(":feature:list:presentation")
