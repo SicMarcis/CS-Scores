@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.composable
+import cz.sic.detail.presentation.ui.ScoreDetailScreen
 import cz.sic.ds.components.AppBar
 import cz.sic.ds.components.ToolbarState
 import cz.sic.list.presentation.ui.ScoreListScreen
@@ -26,7 +27,7 @@ import cz.sic.scores.R
 object ScoresListRoute
 
 @Serializable
-data class ScoreDetailRoute(val id: Int)
+data class ScoreDetailRoute(val id: Long)
 
 @Serializable
 object AddScoreRoute
@@ -69,11 +70,24 @@ fun ScoresNavGraph(
                 ScoreListScreen(
                     snackbarHostState = snackbarHostState,
                     onNavigateToDetail = { id ->
-                        //navController.navigate(ScoreDetailRoute(id))
+                        navController.navigate(ScoreDetailRoute(id))
                     },
                     onNavigateToAddScore = {
                         //navController.navigate(AddScoreRoute())
                     }
+                )
+            }
+
+            composable<ScoreDetailRoute> {
+                LaunchedEffect(Unit) {
+                    toolbarState = ToolbarState(
+                        title = cz.sic.list.presentation.R.string.screen_detail_title,
+                        showBack = true
+                    )
+                }
+
+                ScoreDetailScreen(
+                    snackbarHostState = snackbarHostState,
                 )
             }
         }

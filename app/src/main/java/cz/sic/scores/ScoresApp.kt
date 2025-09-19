@@ -1,6 +1,7 @@
 package cz.sic.scores
 
 import android.app.Application
+import cz.sic.detail.presentation.di.detailPresentationModule
 import cz.sic.list.data.di.listDataModule
 import cz.sic.list.domain.di.listDomainModule
 import cz.sic.list.presentation.di.listPresentationModule
@@ -20,7 +21,8 @@ class ScoresApp: Application() {
                 listPresentationModule,
                 listDomainModule,
                 listDataModule,
-                listPresentationModule
+                listPresentationModule,
+                detailPresentationModule
             )
         }
     }

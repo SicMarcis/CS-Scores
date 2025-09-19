@@ -67,7 +67,6 @@ import cz.sic.list.presentation.vm.ScoresListContract
 import cz.sic.list.presentation.vm.ScoresListViewModel
 import org.koin.androidx.compose.koinViewModel
 
-//@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScoreListScreen(
@@ -84,13 +83,14 @@ fun ScoreListScreen(
 
     LaunchedEffect(state.events) {
         state.events.forEach { event ->
+            viewModel.onUiEventConsumed(event)
             when (event) {
                 is ScoresListContract.UiEvent.ShowError -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
                 is ScoresListContract.UiEvent.ShowDetail -> {
-                    snackbarHostState.showSnackbar("Clicked score: ${event.id}")
                     onNavigateToDetail(event.id)
+                    snackbarHostState.showSnackbar("Clicked score: ${event.id}")
                 }
                 ScoresListContract.UiEvent.ShowAddScreen -> onNavigateToAddScore()
             }
@@ -103,8 +103,6 @@ fun ScoreListScreen(
         onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
         onAddScoreClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnAddScoreClick) }
     )
-
-
 }
 
 @Composable
