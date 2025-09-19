@@ -1,4 +1,4 @@
-package cz.sic.scores.ui.theme
+package cz.sic.ds.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

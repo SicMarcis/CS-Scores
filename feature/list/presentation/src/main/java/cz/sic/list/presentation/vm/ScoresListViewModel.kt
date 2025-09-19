@@ -1,0 +1,142 @@
+package cz.sic.list.presentation.vm
+
+import androidx.lifecycle.viewModelScope
+import cz.sic.list.domain.model.Score
+import cz.sic.list.domain.model.Store
+import cz.sic.list.domain.usecase.ChangeScoresUseCase
+import cz.sic.list.domain.usecase.GetAllScoresUseCase
+import cz.sic.list.domain.model.ScoreWithStore
+import cz.sic.utils.BaseViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class ScoresListViewModel(
+    val getScoresUseCase: GetAllScoresUseCase,
+    val changeScoresUseCase: ChangeScoresUseCase
+): BaseViewModel<ScoresListContract.UiAction, ScoresListContract.UiEvent>() {
+
+    private val _uiState = MutableStateFlow (ScoresListContract.UiState())
+    val uiState: StateFlow<ScoresListContract.UiState> = _uiState.asStateFlow()
+
+    private var observingJob: Job? = null
+
+    override suspend fun handleUiAction(action: ScoresListContract.UiAction) {
+        when (action) {
+            is ScoresListContract.UiAction.OnAppear -> onAppeared()
+            is ScoresListContract.UiAction.OnScoreClick -> onScoreClick(action.id)
+            is ScoresListContract.UiAction.OnStoreSelect -> onStoreSelect(action.store)
+            ScoresListContract.UiAction.OnAddScoreClick -> onAddStoreClick()
+        }
+    }
+
+    private fun onAppeared() {
+        loadScores(Store.Any)
+    }
+
+    private fun onScoreClick(id: Long) {
+        _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowDetail(id)) }
+    }
+
+    private fun onStoreSelect(store: Store) {
+        _uiState.update { it.copy(selectedStore = store) }
+        //refreshScores(store)
+        loadScores(store)
+    }
+
+    private fun onAddStoreClick() {
+        _uiState.update {
+            it.copy(events = it.events + ScoresListContract.UiEvent.ShowAddScreen)
+        }
+    }
+
+    private fun refreshScores(store: Store) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            runCatching { getScoresUseCase.getScoresByStore(store) }
+                .fold(
+                    onSuccess = { result ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                scores = result
+                            )
+                        }
+                    },
+                    onFailure = {
+                        _uiState.update { it.copy(isLoading = false, events = it.events + ScoresListContract.UiEvent.ShowError("Error loading scores")) }
+                    }
+                )
+        }
+
+    }
+
+    private fun loadScores(store: Store = Store.Any) {
+        observingJob?.cancel()
+        observingJob = getScoresUseCase.observeScoresByStore(store)
+            .onEach { data ->
+                _uiState.update { it.copy(isLoading = false, scores = data) }
+            }
+            .launchIn(viewModelScope)
+
+        /*viewModelScope.launch {
+            insertTestData()
+            runCatching {
+                getScoresUseCase.getScoresByStore(Store.Any)
+            }.fold(
+                onSuccess = { result ->
+                    _uiState.update { it.copy(scores = result) }
+                },
+                onFailure = {
+                    _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowError("Error loading scores")) }
+                }
+            )
+        }*/
+    }
+
+    private suspend fun insertTestData() {
+        changeScoresUseCase.deleteAllScores()
+        changeScoresUseCase.saveScore(
+            Score(
+                name = "Test score",
+                address = "Test address",
+                duration = 1234
+            ),
+            Store.Local
+        )
+
+        changeScoresUseCase.saveScore(
+            Score(
+                name = "Test score 2",
+                address = "Test address 2",
+                duration = 4321
+            ),
+            Store.Local
+        )
+
+        changeScoresUseCase.saveScore(
+            Score(
+                name = "Beh do konce",
+                address = "Mount Everest",
+                duration = System.currentTimeMillis().toInt()
+            ),
+            Store.Remote
+        )
+
+    }
+
+    override fun onUiEventConsumed(event: ScoresListContract.UiEvent) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                events = currentState.events - event
+            )
+        }
+    }
+}

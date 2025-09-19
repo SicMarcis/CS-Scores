@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "29169005245",
+    "firebase_url": "https://cs-scores-default-rtdb.firebaseio.com",
+    "project_id": "cs-scores",
+    "storage_bucket": "cs-scores.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:29169005245:android:d95f659166e0d145147dd4",
+        "android_client_info": {
+          "package_name": "cz.sic.scores"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJXEnzgZPQstD1m_ZHF23SnaGIUSUVw58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
