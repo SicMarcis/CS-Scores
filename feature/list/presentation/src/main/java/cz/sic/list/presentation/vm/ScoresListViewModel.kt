@@ -35,7 +35,7 @@ class ScoresListViewModel(
     }
 
     private fun onAppeared() {
-        observeScores(Store.Any)
+        observeScores(_uiState.value.selectedStore)
     }
 
     private fun onScoreClick(id: Long, store: Store) {

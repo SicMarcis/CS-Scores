@@ -64,7 +64,6 @@ fun ScoreListScreen(
                 }
                 is ScoresListContract.UiEvent.ShowDetail -> {
                     onNavigateToDetail(event.id, event.store)
-                    snackbarHostState.showSnackbar("Clicked score: ${event.id}")
                 }
                 ScoresListContract.UiEvent.ShowAddScreen -> onNavigateToAddScore()
             }
