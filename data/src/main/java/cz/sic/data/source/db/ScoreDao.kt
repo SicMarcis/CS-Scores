@@ -17,13 +17,13 @@ interface ScoreDao {
     fun observeAll(): Flow<List<ScoreEntity>>
 
     @Query("SELECT * FROM score WHERE id = :id LIMIT 1")
-    suspend fun getById(id: Int): ScoreEntity?
+    suspend fun getById(id: Long): ScoreEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(score: ScoreEntity)
 
     @Query("DELETE FROM score WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: Long)
 
     @Query("DELETE FROM score")
     suspend fun deleteAll()

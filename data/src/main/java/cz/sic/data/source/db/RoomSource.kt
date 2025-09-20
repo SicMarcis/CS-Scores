@@ -20,7 +20,7 @@ class RoomSource(
         storage.insert(score.toEntity())
     }
 
-    suspend fun deleteScore(id: Int) {
+    suspend fun deleteScore(id: Long) {
         storage.deleteById(id)
     }
 
@@ -30,5 +30,9 @@ class RoomSource(
 
     suspend fun deleteAllScores() {
         storage.deleteAll()
+    }
+
+    suspend fun getScore(id: Long): Score? {
+        return storage.getById(id)?.toDomain()
     }
 }

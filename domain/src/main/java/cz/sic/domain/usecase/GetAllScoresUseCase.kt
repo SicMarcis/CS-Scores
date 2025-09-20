@@ -7,12 +7,10 @@ import cz.sic.domain.repository.ScoreRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlin.collections.map
 
 class GetAllScoresUseCase(
     private val repo: ScoreRepository
 ) {
-
     suspend fun getScoresByStore(store: Store): List<ScoreWithStore> {
         return repo.getScoresByStore(store)
             .map {

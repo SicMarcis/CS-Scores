@@ -15,7 +15,7 @@ class ScoresListContract {
 
     sealed interface UiAction: UiActionAware.UiAction {
         data object OnAppear : UiAction
-        data class OnScoreClick(val id: Long) : UiAction
+        data class OnScoreClick(val id: Long, val store: Store) : UiAction
 
         data class OnStoreSelect(val store: Store) : UiAction
 
@@ -24,7 +24,7 @@ class ScoresListContract {
 
     sealed interface UiEvent: UiStateAware.UiEvent {
         data class ShowError(val message: String): UiEvent
-        data class ShowDetail(val id: Long): UiEvent
+        data class ShowDetail(val id: Long, val store: Store): UiEvent
 
         data object ShowAddScreen: UiEvent
     }

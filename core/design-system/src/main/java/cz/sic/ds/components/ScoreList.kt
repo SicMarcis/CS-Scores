@@ -14,7 +14,7 @@ import cz.sic.ds.utils.DsPreview
 @Composable
 fun ScoreList(
     scores: List<ScoreItem>,
-    onClick: (Long) -> Unit
+    onClick: (ScoreItem) -> Unit
 ) {
     LazyColumn(
         contentPadding = PaddingValues(8.dp)
@@ -25,7 +25,7 @@ fun ScoreList(
             }
             ScoreItem(
                 item = item,
-                onClick = { onClick(item.id) }
+                onClick = { onClick(item) }
             )
         }
     }

@@ -1,10 +1,14 @@
 package cz.sic.domain.di
 
 import cz.sic.domain.usecase.GetAllScoresUseCase
+import cz.sic.domain.usecase.GetScoreItemUseCase
+import cz.sic.domain.usecase.GetScoreItemUseCaseImpl
+import org.koin.core.module.dsl.factoryOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 val domainModule = module {
     // Use Cases
     factory { GetAllScoresUseCase(get()) }
-    //factory { ChangeScoresUseCase(get()) }
+    factoryOf(::GetScoreItemUseCaseImpl) bind GetScoreItemUseCase::class
 }

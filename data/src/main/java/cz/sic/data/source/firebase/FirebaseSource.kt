@@ -1,6 +1,7 @@
 package cz.sic.data.source.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.snapshots
 import cz.sic.data.source.BaseSource
 import kotlinx.coroutines.flow.Flow
@@ -29,16 +30,30 @@ class FirebaseSource(
 
     fun observeScores(): Flow<List<Score>> =
         storage.collection(COLLECTION)
-            .snapshots()
+            .snapshots(MetadataChanges.INCLUDE)
             .map { snapshot ->
                 snapshot.toObjects<ScoreEntry>()
             }
-            .map { it.map { it.toDomain() } }
+            .map {
+                it.map { it.toDomain() }
+            }
 
     suspend fun saveScore(score: Score) {
         storage.collection(COLLECTION)
             .document(score.id.toString())
             .set(score.toEntry())
             .await()
+    }
+
+    suspend fun getScore(id: Long): Score? {
+        val document = storage.collection(COLLECTION)
+            .document(id.toString())
+            .get()
+            .await()
+        return if (document.exists()) {
+            document.toObject(ScoreEntry::class.java)?.toDomain()
+        } else {
+            null
+        }
     }
 }

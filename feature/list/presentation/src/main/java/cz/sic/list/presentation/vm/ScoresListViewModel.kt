@@ -28,7 +28,7 @@ class ScoresListViewModel(
     override suspend fun handleUiAction(action: ScoresListContract.UiAction) {
         when (action) {
             is ScoresListContract.UiAction.OnAppear -> onAppeared()
-            is ScoresListContract.UiAction.OnScoreClick -> onScoreClick(action.id)
+            is ScoresListContract.UiAction.OnScoreClick -> onScoreClick(action.id, action.store)
             is ScoresListContract.UiAction.OnStoreSelect -> onStoreSelect(action.store)
             ScoresListContract.UiAction.OnAddScoreClick -> onAddStoreClick()
         }
@@ -36,10 +36,13 @@ class ScoresListViewModel(
 
     private fun onAppeared() {
         observeScores(Store.Any)
+        viewModelScope.launch {
+            insertTestData()
+        }
     }
 
-    private fun onScoreClick(id: Long) {
-        _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowDetail(id)) }
+    private fun onScoreClick(id: Long, store: Store) {
+        _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowDetail(id, store)) }
     }
 
     private fun onStoreSelect(store: Store) {

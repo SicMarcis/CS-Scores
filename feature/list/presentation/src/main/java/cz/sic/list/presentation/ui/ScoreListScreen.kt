@@ -46,7 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 fun ScoreListScreen(
     viewModel: ScoresListViewModel = koinViewModel(),
     snackbarHostState: SnackbarHostState,
-    onNavigateToDetail: (Long) -> Unit,
+    onNavigateToDetail: (Long, Store) -> Unit,
     onNavigateToAddScore: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,7 +63,7 @@ fun ScoreListScreen(
                     snackbarHostState.showSnackbar(event.message)
                 }
                 is ScoresListContract.UiEvent.ShowDetail -> {
-                    onNavigateToDetail(event.id)
+                    onNavigateToDetail(event.id, event.store)
                     snackbarHostState.showSnackbar("Clicked score: ${event.id}")
                 }
                 ScoresListContract.UiEvent.ShowAddScreen -> onNavigateToAddScore()
@@ -73,7 +73,7 @@ fun ScoreListScreen(
 
     ScoreListContent(
         uiState = state,
-        onItemClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(it)) },
+        onItemClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(id, store)) },
         onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
         onAddScoreClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnAddScoreClick) }
     )
@@ -83,7 +83,7 @@ fun ScoreListScreen(
 fun ScoreListContent(
     uiState: ScoresListContract.UiState,
     modifier: Modifier = Modifier,
-    onItemClick: (Long) -> Unit,
+    onItemClick: (Long, Store) -> Unit,
     onStoreSelected: (Store) -> Unit,
     onAddScoreClick: () -> Unit
 ) {
@@ -105,8 +105,13 @@ fun ScoreListContent(
                 .padding(8.dp))
             ScoreList (
                 uiState.scores.map { it.toScoreItem() },
-                onClick = {
-                    onItemClick(it)
+                onClick = { item ->
+                    val store = when (item.badgeType) {
+                        BadgeType.Local -> Store.Local
+                        BadgeType.Remote -> Store.Remote
+                        null -> null
+                    }
+                    store?.let { onItemClick(item.id, store) }
                 }
             )
         }
@@ -207,7 +212,7 @@ private fun ScoreListContentPreview() {
                 selectedStore = Store.Any,
                 events = emptyList()
             ),
-            onItemClick = { },
+            onItemClick = {_,_ -> },
             onStoreSelected = { },
             onAddScoreClick = { }
         )

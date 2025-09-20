@@ -18,7 +18,9 @@ import androidx.navigation.compose.NavHost
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import cz.sic.detail.presentation.model.Mode
 import cz.sic.detail.presentation.ui.ScoreDetailScreen
+import cz.sic.domain.model.Store
 import cz.sic.ds.components.AppBar
 import cz.sic.ds.components.ToolbarState
 import cz.sic.list.presentation.ui.ScoreListScreen
@@ -28,7 +30,11 @@ import cz.sic.scores.R
 object ScoresListRoute
 
 @Serializable
-data class ScoreDetailRoute(val id: Long)
+data class ScoreDetailRoute(
+    val id: Long?,
+    val store: Store?,
+    val mode: Mode
+)
 
 @Serializable
 object AddScoreRoute
@@ -70,11 +76,11 @@ fun ScoresNavGraph(
                 }
                 ScoreListScreen(
                     snackbarHostState = snackbarHostState,
-                    onNavigateToDetail = { id ->
-                        navController.navigate(ScoreDetailRoute(id))
+                    onNavigateToDetail = { id, store ->
+                        navController.navigate(ScoreDetailRoute(id, store, Mode.View))
                     },
                     onNavigateToAddScore = {
-                        //navController.navigate(AddScoreRoute())
+                        navController.navigate(ScoreDetailRoute(null, null, Mode.Add))
                     }
                 )
             }
@@ -87,8 +93,11 @@ fun ScoresNavGraph(
                     )
                 }
 
+                val route = backStackEntry.toRoute<ScoreDetailRoute>()
                 ScoreDetailScreen(
-                    id = backStackEntry.toRoute<ScoreDetailRoute>().id,
+                    id = route.id,
+                    store = route.store,
+                    mode = route.mode,
                     snackbarHostState = snackbarHostState,
                 )
             }
