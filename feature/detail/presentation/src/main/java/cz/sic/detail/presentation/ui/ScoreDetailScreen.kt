@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,8 +28,9 @@ import cz.sic.domain.model.Score
 import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.ds.components.BadgeType
-import cz.sic.ds.components.LoadingContent
-import cz.sic.ds.components.RowRadioButton
+import cz.sic.ds.components.DsLoadingContent
+import cz.sic.ds.components.DsRowRadioButton
+import cz.sic.ds.components.DsTextField
 import cz.sic.ds.components.StoreBadge
 import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
@@ -43,11 +43,15 @@ fun ScoreDetailScreen(
     mode: Mode,
     viewModel: ScoreDetailViewModel = koinViewModel(),
     snackbarHostState: SnackbarHostState,
+    onBack: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(id) {
-        viewModel.onUiAction(ScoreDetailContract.UiAction.LoadScore(id, store, mode))
+        when (mode) {
+            Mode.View -> viewModel.onUiAction(ScoreDetailContract.UiAction.LoadScore(id, store, mode))
+            Mode.Add -> viewModel.onUiAction(ScoreDetailContract.UiAction.AddScore)
+        }
     }
 
     LaunchedEffect(state.events) {
@@ -57,12 +61,28 @@ fun ScoreDetailScreen(
                 is ScoreDetailContract.UiEvent.ShowError -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
+                ScoreDetailContract.UiEvent.ScoreSaved -> onBack()
             }
         }
     }
 
     ScoreDetailContent(
-        state = state
+        state = state,
+        onNameChanged = {
+            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Name(it))
+        },
+        onAddressChanged = {
+            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Address(it))
+        },
+        onDurationChanged = {
+            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Duration(it))
+        },
+        onStoreChanged = {
+            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Location(it))
+        },
+        onSaveClicked = {
+            viewModel.onUiAction(ScoreDetailContract.UiAction.SaveScore)
+        }
     )
 }
 
@@ -72,6 +92,7 @@ fun ScoreDetailContent(
     onNameChanged: (String) -> Unit = {},
     onAddressChanged: (String) -> Unit = {},
     onDurationChanged: (String) -> Unit = {},
+    onStoreChanged: (Store) -> Unit = {},
     onSaveClicked: () -> Unit = {},
 ) {
     val score = state.score
@@ -90,29 +111,26 @@ fun ScoreDetailContent(
                 .wrapContentHeight(),
 
         ) {
-            TextField(
+            DsTextField(
                 value = score.score.name,
-                label = {Text("Name")},
-                onValueChange = onNameChanged,
-                textStyle = MaterialTheme.typography.bodyMedium,
+                label = "Name",
+                onValueChanged = onNameChanged,
                 enabled = state.editEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(16.dp))
-            TextField(
+            DsTextField(
                 value = score.score.address,
-                label = {Text("Address")},
-                onValueChange = onAddressChanged,
-                textStyle = MaterialTheme.typography.bodyMedium,
+                label = "Address",
+                onValueChanged = onAddressChanged,
                 enabled = state.editEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(Modifier.height(16.dp))
-            TextField(
+            DsTextField(
                 value = score.score.duration.toString(),
-                label = {Text("Duration")},
-                onValueChange = onDurationChanged,
-                textStyle = MaterialTheme.typography.bodyMedium,
+                label = "Duration",
+                onValueChanged = onDurationChanged,
                 enabled = state.editEnabled,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -139,19 +157,19 @@ fun ScoreDetailContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
             ) {
-                RowRadioButton(
+                DsRowRadioButton(
                     modifier = Modifier
                         .fillMaxWidth(),
                     label = stringResource(cz.sic.ds.R.string.badge_local) ,
-                    selected = false,
-                    onSelected = {}
+                    selected = state.score.store == Store.Local,
+                    onSelected = { onStoreChanged(Store.Local) }
                 )
-                RowRadioButton(
+                DsRowRadioButton(
                     modifier = Modifier
                         .fillMaxWidth(),
                     label = stringResource(cz.sic.ds.R.string.badge_remote),
-                    selected = false,
-                    onSelected = {}
+                    selected = state.score.store == Store.Remote,
+                    onSelected = { onStoreChanged(Store.Remote) }
                 )
                 Button(
                     onClick = onSaveClicked,
@@ -168,7 +186,7 @@ fun ScoreDetailContent(
 
         }
         if(state.isLoading) {
-            LoadingContent(
+            DsLoadingContent(
                 modifier = Modifier
                     .align(Alignment.Center)
             )

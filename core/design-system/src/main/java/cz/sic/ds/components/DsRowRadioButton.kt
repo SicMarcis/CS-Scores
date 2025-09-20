@@ -15,7 +15,7 @@ import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
-fun RowRadioButton(
+fun DsRowRadioButton(
     label: String,
     selected: Boolean = false,
     onSelected: () -> Unit = {},
@@ -43,9 +43,9 @@ fun RowRadioButton(
 
 @DsPreview
 @Composable
-fun RowRadioButtonPreview() {
+fun DsRowRadioButtonPreview() {
     ScoreTheme {
-        RowRadioButton(
+        DsRowRadioButton(
             label = "label",
             modifier = Modifier
                 .fillMaxWidth()

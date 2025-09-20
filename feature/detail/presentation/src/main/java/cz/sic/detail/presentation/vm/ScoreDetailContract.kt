@@ -18,12 +18,23 @@ class ScoreDetailContract {
 
     sealed interface UiAction: UiActionAware.UiAction {
         data class LoadScore(val id: Long?, val store: Store?, val mode: Mode) : UiAction
+
+        data object AddScore : UiAction
         data object OnAppear : UiAction
 
-        data class SaveScore(val score: Score) : UiAction
+        data object SaveScore : UiAction
+
+        sealed class ValueChange<T>(val value: T): UiAction {
+            data class Name(val name: String): ValueChange<String>(name)
+            data class Address(val address: String): ValueChange<String>(address)
+            data class Duration(val duration: String): ValueChange<String>(duration)
+            data class Location(val store: Store): ValueChange<Store>(store)
+        }
     }
 
     sealed interface UiEvent: UiStateAware.UiEvent {
         data class ShowError(val message: String): UiEvent
+
+        data object ScoreSaved: UiEvent
     }
 }

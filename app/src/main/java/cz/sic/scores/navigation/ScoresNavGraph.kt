@@ -12,7 +12,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import kotlinx.serialization.Serializable
@@ -21,10 +20,9 @@ import androidx.navigation.toRoute
 import cz.sic.detail.presentation.model.Mode
 import cz.sic.detail.presentation.ui.ScoreDetailScreen
 import cz.sic.domain.model.Store
-import cz.sic.ds.components.AppBar
+import cz.sic.ds.components.DsAppBar
 import cz.sic.ds.components.ToolbarState
 import cz.sic.list.presentation.ui.ScoreListScreen
-import cz.sic.scores.R
 
 @Serializable
 object ScoresListRoute
@@ -56,7 +54,7 @@ fun ScoresNavGraph(
         modifier = Modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            AppBar(
+            DsAppBar(
                 toolbarState = toolbarState,
                 onBack = { navController.popBackStack() }
             )
@@ -99,6 +97,7 @@ fun ScoresNavGraph(
                     store = route.store,
                     mode = route.mode,
                     snackbarHostState = snackbarHostState,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }

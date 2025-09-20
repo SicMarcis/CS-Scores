@@ -36,9 +36,6 @@ class ScoresListViewModel(
 
     private fun onAppeared() {
         observeScores(Store.Any)
-        viewModelScope.launch {
-            insertTestData()
-        }
     }
 
     private fun onScoreClick(id: Long, store: Store) {

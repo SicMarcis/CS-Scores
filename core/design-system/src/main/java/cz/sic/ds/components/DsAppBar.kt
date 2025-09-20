@@ -1,6 +1,5 @@
 package cz.sic.ds.components
 
-import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -15,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppBar(
+fun DsAppBar(
     toolbarState: ToolbarState,
     onBack: (() -> Unit) = { },
     modifier: Modifier = Modifier

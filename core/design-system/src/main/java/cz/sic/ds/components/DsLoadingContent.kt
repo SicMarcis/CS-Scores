@@ -16,7 +16,7 @@ import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
-fun LoadingContent(
+fun DsLoadingContent(
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -35,10 +35,10 @@ fun LoadingContent(
 
 @DsPreview
 @Composable
-private fun LoadingContentPreview() {
+private fun DsLoadingContentPreview() {
     ScoreTheme {
         Box(modifier = Modifier.padding(16.dp)) {
-            LoadingContent()
+            DsLoadingContent()
         }
 
     }

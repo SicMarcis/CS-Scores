@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
 import cz.sic.ds.components.BadgeType
-import cz.sic.ds.components.LoadingContent
+import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.ScoreItem
 import cz.sic.ds.components.ScoreList
 import cz.sic.ds.theme.ScoreTheme
@@ -130,7 +130,7 @@ fun ScoreListContent(
         }
 
         if(uiState.isLoading) {
-            LoadingContent(
+            DsLoadingContent(
                 modifier = Modifier
                     .align(Alignment.Center)
 
