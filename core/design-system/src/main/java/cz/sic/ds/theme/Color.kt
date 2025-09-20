@@ -13,18 +13,26 @@ val Pink40 = Color(0xFF7D5260)
 object Ds {
     object Color {
         object Theme {
-            val itemBackground: androidx.compose.ui.graphics.Color = Color(0xFFDADEE0)
+            val itemBackground: androidx.compose.ui.graphics.Color =
+                Grey.g30
+            val itemBorder: androidx.compose.ui.graphics.Color =
+                Grey.g80
         }
 
         object Badge {
             val contentColorLocal: androidx.compose.ui.graphics.Color =
                 androidx.compose.ui.graphics.Color.Green
             val contentColorRemote: androidx.compose.ui.graphics.Color =
-                androidx.compose.ui.graphics.Color.Red
+                androidx.compose.ui.graphics.Color.Cyan
         }
 
         object Transparent {
             val t50: androidx.compose.ui.graphics.Color = Color(0x80000000)
+        }
+
+        object Grey {
+            val g30: androidx.compose.ui.graphics.Color = Color(0xFFDADEE0)
+            val g80: androidx.compose.ui.graphics.Color = Color(0xFF374045)
         }
     }
 }

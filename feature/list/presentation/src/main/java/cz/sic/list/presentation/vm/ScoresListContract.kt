@@ -16,9 +16,8 @@ class ScoresListContract {
     sealed interface UiAction: UiActionAware.UiAction {
         data object OnAppear : UiAction
         data class OnScoreClick(val id: Long, val store: Store) : UiAction
-
+        data class OnDeleteClick(val id: Long, val store: Store) : UiAction
         data class OnStoreSelect(val store: Store) : UiAction
-
         data object OnAddScoreClick : UiAction
     }
 

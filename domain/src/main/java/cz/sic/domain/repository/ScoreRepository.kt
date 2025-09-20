@@ -16,7 +16,7 @@ interface ScoreRepository {
 
     suspend fun saveScore(score: Score, store: Store)
 
-    suspend fun deleteScore(id: Long)
+    suspend fun deleteScore(id: Long, store: Store)
 
     suspend fun deleAllLocalScores()
 

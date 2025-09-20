@@ -56,4 +56,11 @@ class FirebaseSource(
             null
         }
     }
+
+    suspend fun deleteScore(id: Long) {
+        storage.collection(COLLECTION)
+            .document(id.toString())
+            .delete()
+            .await()
+    }
 }

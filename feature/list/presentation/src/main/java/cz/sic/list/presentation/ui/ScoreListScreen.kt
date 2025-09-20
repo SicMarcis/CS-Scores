@@ -73,6 +73,7 @@ fun ScoreListScreen(
     ScoreListContent(
         uiState = state,
         onItemClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(id, store)) },
+        onItemLongClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnDeleteClick(id, store)) },
         onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
         onAddScoreClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnAddScoreClick) }
     )
@@ -83,6 +84,7 @@ fun ScoreListContent(
     uiState: ScoresListContract.UiState,
     modifier: Modifier = Modifier,
     onItemClick: (Long, Store) -> Unit,
+    onItemLongClick: (Long, Store) -> Unit,
     onStoreSelected: (Store) -> Unit,
     onAddScoreClick: () -> Unit
 ) {
@@ -111,6 +113,14 @@ fun ScoreListContent(
                         null -> null
                     }
                     store?.let { onItemClick(item.id, store) }
+                },
+                onLongClick = { item ->
+                    val store = when (item.badgeType) {
+                        BadgeType.Local -> Store.Local
+                        BadgeType.Remote -> Store.Remote
+                        null -> null
+                    }
+                    store?.let { onItemLongClick(item.id, store) }
                 }
             )
         }
@@ -213,7 +223,8 @@ private fun ScoreListContentPreview() {
             ),
             onItemClick = {_,_ -> },
             onStoreSelected = { },
-            onAddScoreClick = { }
+            onAddScoreClick = { },
+            onItemLongClick = {_,_ -> }
         )
     }
 }

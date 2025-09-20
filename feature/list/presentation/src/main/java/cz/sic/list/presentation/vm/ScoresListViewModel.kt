@@ -3,6 +3,7 @@ package cz.sic.list.presentation.vm
 import androidx.lifecycle.viewModelScope
 import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
+import cz.sic.domain.usecase.DeleteScoreUseCase
 import cz.sic.domain.usecase.GetAllScoresUseCase
 import cz.sic.list.domain.usecase.TestDataUseCase
 import cz.sic.utils.BaseViewModel
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class ScoresListViewModel(
     val getScoresUseCase: GetAllScoresUseCase,
-    val changeScoresUseCase: TestDataUseCase
+    val deleteScoreUseCase: DeleteScoreUseCase,
+    val testScoresUseCase: TestDataUseCase
 ): BaseViewModel<ScoresListContract.UiAction, ScoresListContract.UiEvent>() {
 
     private val _uiState = MutableStateFlow (ScoresListContract.UiState())
@@ -31,6 +33,7 @@ class ScoresListViewModel(
             is ScoresListContract.UiAction.OnScoreClick -> onScoreClick(action.id, action.store)
             is ScoresListContract.UiAction.OnStoreSelect -> onStoreSelect(action.store)
             ScoresListContract.UiAction.OnAddScoreClick -> onAddStoreClick()
+            is ScoresListContract.UiAction.OnDeleteClick -> deleteScore(action.id, action.store)
         }
     }
 
@@ -52,6 +55,21 @@ class ScoresListViewModel(
             it.copy(events = it.events + ScoresListContract.UiEvent.ShowAddScreen)
         }
     }
+
+    private fun deleteScore(id: Long, store: Store) {
+        viewModelScope.launch {
+            runCatching { deleteScoreUseCase(id, store) }
+                .onFailure { t ->
+                    _uiState.update {
+                        it.copy(
+                            events = it.events + ScoresListContract.UiEvent.ShowError("Error: ${t.message}")
+                        )
+                    }
+                }
+
+        }
+    }
+
 
     private fun refreshScores(store: Store) {
         viewModelScope.launch {
@@ -102,8 +120,8 @@ class ScoresListViewModel(
     }
 
     private suspend fun insertTestData() {
-        changeScoresUseCase.deleteAllScores()
-        changeScoresUseCase.saveScore(
+        testScoresUseCase.deleteAllScores()
+        testScoresUseCase.saveScore(
             Score(
                 name = "Test score",
                 address = "Test address",
@@ -112,7 +130,7 @@ class ScoresListViewModel(
             Store.Local
         )
 
-        changeScoresUseCase.saveScore(
+        testScoresUseCase.saveScore(
             Score(
                 name = "Test score 2",
                 address = "Test address 2",
@@ -121,7 +139,7 @@ class ScoresListViewModel(
             Store.Local
         )
 
-        changeScoresUseCase.saveScore(
+        testScoresUseCase.saveScore(
             Score(
                 name = "Beh do konce",
                 address = "Mount Everest",

@@ -66,8 +66,12 @@ class ScoreRepositoryImpl(
         }
     }
 
-    override suspend fun deleteScore(id: Long) {
-        localStore.deleteScore(id)
+    override suspend fun deleteScore(id: Long, store: Store) {
+        when (store) {
+            Store.Local -> localStore.deleteScore(id)
+            Store.Remote -> remoteStore.deleteScore(id)
+            Store.Any -> throw RuntimeException("Illegal store '$store' provided.")
+        }
     }
 
     override suspend fun deleAllLocalScores() {
