@@ -4,6 +4,7 @@ import cz.sic.utils.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class ScoreDetailViewModel: BaseViewModel<ScoreDetailContract.UiAction, ScoreDetailContract.UiEvent>() {
 
@@ -23,10 +24,14 @@ class ScoreDetailViewModel: BaseViewModel<ScoreDetailContract.UiAction, ScoreDet
 
     override suspend fun handleUiAction(action: ScoreDetailContract.UiAction) {
         when (action) {
-            is ScoreDetailContract.UiAction.OnAppear -> {
-                loadScore()
-            }
+            is ScoreDetailContract.UiAction.OnAppear -> loadScore()
+            is ScoreDetailContract.UiAction.LoadScore -> publishScore()
+            is ScoreDetailContract.UiAction.SaveScore -> {}
         }
+    }
+
+    private fun publishScore() {
+        _uiState.update { it.copy() }
     }
 
     private fun loadScore() {

@@ -35,12 +35,11 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":domain"))
     implementation(project(":feature:list:domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    //implementation(libs.material)
 
     implementation(libs.timber)
     // Room

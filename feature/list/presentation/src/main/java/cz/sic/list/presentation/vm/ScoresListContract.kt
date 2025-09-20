@@ -1,8 +1,7 @@
 package cz.sic.list.presentation.vm
 
-import cz.sic.list.domain.model.Score
-import cz.sic.list.domain.model.Store
-import cz.sic.list.domain.model.ScoreWithStore
+import cz.sic.domain.model.Store
+import cz.sic.domain.model.ScoreWithStore
 import cz.sic.utils.UiActionAware
 import cz.sic.utils.UiStateAware
 

@@ -35,6 +35,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":domain"))
     implementation(project(":core:design-system"))
     implementation(project(":feature:detail:domain"))
     implementation(project(":feature:list:domain"))

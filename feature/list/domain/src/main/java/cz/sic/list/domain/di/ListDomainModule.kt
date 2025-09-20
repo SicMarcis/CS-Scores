@@ -1,11 +1,8 @@
 package cz.sic.list.domain.di
 
-import cz.sic.list.domain.usecase.ChangeScoresUseCase
-import cz.sic.list.domain.usecase.GetAllScoresUseCase
+import cz.sic.list.domain.usecase.TestDataUseCase
 import org.koin.dsl.module
 
 val listDomainModule = module {
-    // Use Cases
-    factory { GetAllScoresUseCase(get()) }
-    factory { ChangeScoresUseCase(get()) }
+    factory { TestDataUseCase(get()) }
 }

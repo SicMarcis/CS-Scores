@@ -61,15 +61,15 @@ dependencies {
     implementation(libs.firebase.firestore.ktx)
     implementation(libs.kotlinx.coroutines.play.services)
 
+    implementation(project(":domain"))
+    implementation(project(":data"))
+    implementation(project(":core:design-system"))
     implementation(project(":feature:list:data"))
     implementation(project(":feature:list:domain"))
     implementation(project(":feature:list:presentation"))
     implementation(project(":feature:detail:data"))
     implementation(project(":feature:detail:domain"))
     implementation(project(":feature:detail:presentation"))
-    implementation(project(":core:design-system"))
-
-
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

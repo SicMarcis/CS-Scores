@@ -9,18 +9,22 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cz.sic.detail.presentation.vm.ScoreDetailContract
 import cz.sic.detail.presentation.vm.ScoreDetailViewModel
+import cz.sic.domain.model.Score
+import cz.sic.ds.components.LoadingContent
+import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ScoreDetailScreen(
+    id: Long,
     viewModel: ScoreDetailViewModel = koinViewModel(),
     snackbarHostState: SnackbarHostState,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel) {
-        viewModel.onUiAction(ScoreDetailContract.UiAction.OnAppear)
+    LaunchedEffect(id) {
+        viewModel.onUiAction(ScoreDetailContract.UiAction.LoadScore(id))
     }
 
     LaunchedEffect(state.events) {
@@ -33,24 +37,40 @@ fun ScoreDetailScreen(
         }
     }
 
-    ScoreDetailContent()
+    ScoreDetailContent(
+        state = state,
+        onSave = { /*viewModel.onUiAction(ScoreDetailContract.UiAction.SaveScore(score))*/ }
+    )
 }
 
 @Composable
 fun ScoreDetailContent(
+    state: ScoreDetailContract.UiState,
     modifier: Modifier = Modifier,
     onSave: () -> Unit = {}
 ) {
     Text("MEssage")
+    if(state.isLoading) {
+        LoadingContent()
+    }
 }
 
 @DsPreview
 @Composable
 private fun ScoreDetailContentPreview() {
-    /*ScoreTheme {
+    ScoreTheme {
         ScoreDetailContent(
+            state = ScoreDetailContract.UiState(
+                isLoading = true,
+                score = Score(
+                    id = 1,
+                    name = "Name",
+                    address = "2024-01-01",
+                    duration = 666,
+                )
+            ),
             onSave = { }
         )
-    }*/
+    }
 
 }

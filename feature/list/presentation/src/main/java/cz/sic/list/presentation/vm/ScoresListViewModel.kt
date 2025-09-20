@@ -1,26 +1,23 @@
 package cz.sic.list.presentation.vm
 
 import androidx.lifecycle.viewModelScope
-import cz.sic.list.domain.model.Score
-import cz.sic.list.domain.model.Store
-import cz.sic.list.domain.usecase.ChangeScoresUseCase
-import cz.sic.list.domain.usecase.GetAllScoresUseCase
-import cz.sic.list.domain.model.ScoreWithStore
+import cz.sic.domain.model.Score
+import cz.sic.domain.model.Store
+import cz.sic.domain.usecase.GetAllScoresUseCase
+import cz.sic.list.domain.usecase.TestDataUseCase
 import cz.sic.utils.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ScoresListViewModel(
     val getScoresUseCase: GetAllScoresUseCase,
-    val changeScoresUseCase: ChangeScoresUseCase
+    val changeScoresUseCase: TestDataUseCase
 ): BaseViewModel<ScoresListContract.UiAction, ScoresListContract.UiEvent>() {
 
     private val _uiState = MutableStateFlow (ScoresListContract.UiState())
@@ -38,7 +35,7 @@ class ScoresListViewModel(
     }
 
     private fun onAppeared() {
-        loadScores(Store.Any)
+        observeScores(Store.Any)
     }
 
     private fun onScoreClick(id: Long) {
@@ -47,8 +44,7 @@ class ScoresListViewModel(
 
     private fun onStoreSelect(store: Store) {
         _uiState.update { it.copy(selectedStore = store) }
-        //refreshScores(store)
-        loadScores(store)
+        observeScores(store)
     }
 
     private fun onAddStoreClick() {
@@ -78,18 +74,22 @@ class ScoresListViewModel(
 
     }
 
-    private fun loadScores(store: Store = Store.Any) {
+    private fun observeScores(store: Store = Store.Any) {
+        _uiState.update { it.copy(isLoading = true) }
         observingJob?.cancel()
         observingJob = getScoresUseCase.observeScoresByStore(store)
             .onEach { data ->
                 _uiState.update { it.copy(isLoading = false, scores = data) }
             }
-            .launchIn(viewModelScope)
 
-        /*viewModelScope.launch {
-            insertTestData()
+            .launchIn(viewModelScope)
+    }
+
+    private fun loadScores(store: Store) {
+        viewModelScope.launch {
+            //insertTestData()
             runCatching {
-                getScoresUseCase.getScoresByStore(Store.Any)
+                getScoresUseCase.getScoresByStore(store)
             }.fold(
                 onSuccess = { result ->
                     _uiState.update { it.copy(scores = result) }
@@ -98,7 +98,7 @@ class ScoresListViewModel(
                     _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowError("Error loading scores")) }
                 }
             )
-        }*/
+        }
     }
 
     private suspend fun insertTestData() {

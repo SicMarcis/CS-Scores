@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import kotlinx.serialization.Serializable
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import cz.sic.detail.presentation.ui.ScoreDetailScreen
 import cz.sic.ds.components.AppBar
 import cz.sic.ds.components.ToolbarState
@@ -78,7 +79,7 @@ fun ScoresNavGraph(
                 )
             }
 
-            composable<ScoreDetailRoute> {
+            composable<ScoreDetailRoute> { backStackEntry ->
                 LaunchedEffect(Unit) {
                     toolbarState = ToolbarState(
                         title = cz.sic.list.presentation.R.string.screen_detail_title,
@@ -87,6 +88,7 @@ fun ScoresNavGraph(
                 }
 
                 ScoreDetailScreen(
+                    id = backStackEntry.toRoute<ScoreDetailRoute>().id,
                     snackbarHostState = snackbarHostState,
                 )
             }
