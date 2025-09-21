@@ -1,11 +1,16 @@
 package cz.sic.ds.components
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cz.sic.ds.R
@@ -20,19 +25,20 @@ fun DsStoreBadge(
     modifier: Modifier = Modifier
 ) {
     Badge(
-        modifier = modifier
-            .padding(4.dp),
+        modifier = modifier,
         containerColor = when (type) {
             BadgeType.Local -> Ds.Color.Badge.contentColorLocal
             BadgeType.Remote -> Ds.Color.Badge.contentColorRemote
             null -> Ds.Color.Badge.contentColorLocal
-        },
+        }
     ) {
         Text(
             style = MaterialTheme.typography.bodyMedium,
             color = Ds.Color.Badge.textColor,
             modifier = modifier
-                .padding(4.dp),
+                .wrapContentSize()
+                .padding(horizontal = 8.dp)
+                ,
             text = when (type) {
                 BadgeType.Local -> stringResource(R.string.badge_local)
                 BadgeType.Remote -> stringResource(R.string.badge_remote)
@@ -50,7 +56,9 @@ enum class BadgeType {
 @Composable
 fun DsStoreBadgePreview() {
     ScoreTheme {
-        DsStoreBadge(type = BadgeType.Local)
+        DsStoreBadge(
+            type = BadgeType.Local
+        )
     }
 
 }

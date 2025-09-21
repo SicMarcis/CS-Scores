@@ -2,15 +2,22 @@ package cz.sic.detail.presentation.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -104,79 +111,60 @@ fun ScoreDetailContent(
     if(score == null) {
         return
     }
-
     Box(
         modifier = Modifier.fillMaxSize()
             .padding(16.dp)
     ) {
-        
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
 
-        ) {
-            DsTextField(
-                value = score.score.name,
-                label = "Name",
-                onValueChanged = onNameChanged,
-                enabled = state.editEnabled,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-            DsTextField(
-                value = score.score.address,
-                label = "Address",
-                onValueChanged = onAddressChanged,
-                enabled = state.editEnabled,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(16.dp))
-            DsTextField(
-                value = score.score.duration.toString(),
-                label = "Duration",
-                onValueChanged = onDurationChanged,
-                enabled = state.editEnabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+        val modifier = Modifier
+            .fillMaxWidth()
+            .align(Alignment.TopCenter)
 
-            when (score.store) {
-                Store.Local -> BadgeType.Local
-                Store.Remote -> BadgeType.Remote
-                Store.Any -> null
-            }?.let {
-                Spacer(Modifier.height(16.dp))
-                DsStoreBadge(
-                    type = when (score.store) {
-                        Store.Local -> BadgeType.Local
-                        Store.Remote -> BadgeType.Remote
-                        Store.Any -> null
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+        if(state.mode == Mode.View) {
+            ViewContent(
+                modifier = modifier,
+                score = score
+            )
+        } else {
+            EditContent(
+                modifier = modifier,
+                score = score,
+                onNameChanged = onNameChanged,
+                onAddressChanged = onAddressChanged,
+                onDurationChanged = onDurationChanged,
+            )
         }
 
         if(state.editEnabled) {
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .align(Alignment.BottomCenter)
             ) {
-                DsRowRadioButton(
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    label = stringResource(cz.sic.ds.R.string.badge_local) ,
-                    selected = state.score.store == Store.Local,
-                    onSelected = { onStoreChanged(Store.Local) }
-                )
-                DsRowRadioButton(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    label = stringResource(cz.sic.ds.R.string.badge_remote),
-                    selected = state.score.store == Store.Remote,
-                    onSelected = { onStoreChanged(Store.Remote) }
-                )
+                        .fillMaxWidth()
+                ) {
+                    DsRowRadioButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        label = stringResource(cz.sic.ds.R.string.badge_local) ,
+                        selected = state.score.store == Store.Local,
+                        onSelected = { onStoreChanged(Store.Local) }
+                    )
+                    DsRowRadioButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        label = stringResource(cz.sic.ds.R.string.badge_remote),
+                        selected = state.score.store == Store.Remote,
+                        onSelected = { onStoreChanged(Store.Remote) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Button(
                     onClick = onSaveClicked,
                     modifier = Modifier
@@ -190,6 +178,7 @@ fun ScoreDetailContent(
                 }
             }
 
+
         }
         if(isLoading) {
             DsLoadingContent(
@@ -197,6 +186,156 @@ fun ScoreDetailContent(
                     .align(Alignment.Center)
             )
         }
+    }
+}
+
+@Composable
+fun EditContent(
+    modifier: Modifier = Modifier,
+    score: ScoreWithStore,
+    onNameChanged: (String) -> Unit = {},
+    onAddressChanged: (String) -> Unit = {},
+    onDurationChanged: (String) -> Unit = {},
+) {
+    Column(
+        modifier = modifier,
+    ) {
+        DsTextField(
+            value = score.score.name,
+            label = "Name",
+            onValueChanged = onNameChanged,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(16.dp))
+        DsTextField(
+            value = score.score.address,
+            label = "Address",
+            onValueChanged = onAddressChanged,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(16.dp))
+        DsTextField(
+            value = score.score.duration.toString(),
+            label = "Duration",
+            onValueChanged = onDurationChanged,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun  ViewContent(
+    modifier: Modifier = Modifier,
+    score: ScoreWithStore
+) {
+    Column(
+        modifier = modifier
+    ) {
+        Text(
+            text = score.score.name,
+            style = MaterialTheme.typography.displayLarge,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        )
+
+         Spacer(modifier = Modifier.height(16.dp))
+
+         Row {
+             Icon(
+                 imageVector = Icons.Filled.LocationOn,
+                 contentDescription = null,
+                 modifier = Modifier
+                     .align(Alignment.CenterVertically)
+                     .size(50.dp)
+                     .padding(end = 8.dp)
+             )
+             Text(
+                 text = score.score.address,
+                 style = MaterialTheme.typography.headlineLarge,
+                 modifier = Modifier
+                     .fillMaxWidth()
+                     .align(Alignment.CenterVertically)
+                     .wrapContentHeight()
+             )
+         }
+
+         Spacer(modifier = Modifier.height(16.dp))
+
+         Row {
+             Icon(
+                 imageVector = Icons.Filled.DateRange,
+                 contentDescription = null,
+                 modifier = Modifier
+                     .align(Alignment.CenterVertically)
+                     .size(50.dp)
+                     .padding(end = 8.dp)
+             )
+             Text(
+                 text = score.score.duration.toString(),
+                 style = MaterialTheme.typography.headlineLarge,
+                 modifier = Modifier
+                     .fillMaxWidth()
+                     .align(Alignment.CenterVertically)
+                     .wrapContentHeight()
+             )
+         }
+
+        when (score.store) {
+            Store.Local -> BadgeType.Local
+            Store.Remote -> BadgeType.Remote
+            Store.Any -> null
+        }?.let {
+            Spacer(Modifier.height(16.dp))
+            DsStoreBadge(
+                type = when (score.store) {
+                    Store.Local -> BadgeType.Local
+                    Store.Remote -> BadgeType.Remote
+                    Store.Any -> null
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@DsPreview
+@Composable
+fun EditContentPreview() {
+    ScoreTheme {
+        EditContent(
+            score = ScoreWithStore(
+                Score(
+                    id = 1,
+                    name = "Name",
+                    address = "2024-01-01",
+                    duration = 666,
+                ),
+                store = Store.Local
+            ),
+        )
+    }
+}
+
+@DsPreview
+@Composable
+fun ViewContentPreview() {
+    ScoreTheme {
+        ViewContent(
+            score = ScoreWithStore(
+                Score(
+                    id = 1,
+                    name = "Name",
+                    address = "2024-01-01",
+                    duration = 666,
+                ),
+                store = Store.Local
+            ),
+        )
     }
 }
 
