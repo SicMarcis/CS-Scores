@@ -1,18 +1,16 @@
 package cz.sic.data.source.firebase
 
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.MetadataChanges
-import com.google.firebase.firestore.snapshots
-import cz.sic.data.source.BaseSource
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.ktx.toObjects
 import cz.sic.data.source.RemoteSource
 import cz.sic.data.source.firebase.model.ScoreEntry
 import cz.sic.data.source.firebase.model.toDomain
 import cz.sic.data.source.firebase.model.toEntry
 import cz.sic.domain.model.Score
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class FirebaseSource(
     private val storage: FirebaseFirestore
@@ -30,14 +28,25 @@ class FirebaseSource(
     }
 
     override fun observe(): Flow<List<Score>> =
-        storage.collection(COLLECTION)
-            .snapshots(MetadataChanges.INCLUDE)
-            .map { snapshot ->
-                snapshot.toObjects<ScoreEntry>()
+        callbackFlow {
+            val collection = storage.collection("scores")
+
+            val listenerRegistration = collection.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    val scores = snapshot.toObjects< ScoreEntry>()
+                    trySend(scores.map { it.toDomain() }) // Offer the latest data to the flow
+                }
             }
-            .map {
-                it.map { it.toDomain() }
+
+            awaitClose {
+                listenerRegistration.remove()
             }
+        }
 
     override suspend fun deleteAll() {
         val collectionRef = storage.collection(COLLECTION)

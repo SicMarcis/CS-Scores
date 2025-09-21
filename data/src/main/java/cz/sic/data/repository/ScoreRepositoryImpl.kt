@@ -2,12 +2,14 @@ package cz.sic.data.repository
 
 import cz.sic.data.source.LocalSource
 import cz.sic.data.source.RemoteSource
-import cz.sic.data.source.db.RoomSource
-import cz.sic.data.source.firebase.FirebaseSource
 import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
 import cz.sic.domain.repository.ScoreRepository
+import cz.sic.utils.ErrorResult
+import cz.sic.utils.Result
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class ScoreRepositoryImpl(
     private val localStore: LocalSource<Score>,
@@ -30,11 +32,16 @@ class ScoreRepositoryImpl(
         }
     }
 
-    override fun observeScoresByStore(store: Store): Flow<List<Score>> {
+    override fun observeScoresByStore(store: Store): Flow<Result<List<Score>>> {
         return when (store) {
-            Store.Local -> localStore.observe()
-            Store.Remote -> remoteStore.observe()
-            Store.Any -> throw RuntimeException("Invalid State")
+            Store.Local -> localStore.observe().map { Result.Success(it) }
+            Store.Remote -> remoteStore.observe().map { Result.Success(it) }
+            Store.Any -> flow {
+                Result.Error(
+                    error = ErrorResult.General(RuntimeException("Invalid State")),
+                    data = emptyList<Score>()
+                )
+            }
         }
     }
 

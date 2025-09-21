@@ -2,6 +2,7 @@ package cz.sic.domain.repository
 
 import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
+import cz.sic.utils.Result
 import kotlinx.coroutines.flow.Flow
 
 interface ScoreRepository {
@@ -10,7 +11,7 @@ interface ScoreRepository {
 
     suspend fun getScoresByStore(store: Store) : List<Score>
 
-    fun observeScoresByStore(store: Store) : Flow<List<Score>>
+    fun observeScoresByStore(store: Store) : Flow<Result<List<Score>>>
 
     suspend fun saveScore(score: Score, store: Store)
 

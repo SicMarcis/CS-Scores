@@ -7,6 +7,8 @@ import cz.sic.domain.usecase.DeleteScoreUseCase
 import cz.sic.domain.usecase.GetAllScoresUseCase
 import cz.sic.list.domain.usecase.TestDataUseCase
 import cz.sic.utils.BaseViewModel
+import cz.sic.utils.fold
+import cz.sic.utils.getOrNull
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -65,7 +67,6 @@ class ScoresListViewModel(
                         )
                     }
                 }
-
         }
     }
 
@@ -74,7 +75,20 @@ class ScoresListViewModel(
         observingJob?.cancel()
         observingJob = getScoresUseCase.observeScoresByStore(store)
             .onEach { data ->
-                _uiState.update { it.copy(isLoading = false, scores = data) }
+                data.fold(
+                    success = {
+                        _uiState.update { it.copy(isLoading = false, scores = data.getOrNull().orEmpty()) }
+                    },
+                    error = { error ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                events = it.events + ScoresListContract.UiEvent.ShowError("Error loading data")
+                            )
+                        }
+                    }
+                )
+
             }
             .launchIn(viewModelScope)
     }
