@@ -20,7 +20,6 @@ class ScoreDetailContract {
         data class LoadScore(val id: Long?, val store: Store?, val mode: Mode) : UiAction
 
         data object AddScore : UiAction
-        data object OnAppear : UiAction
 
         data object SaveScore : UiAction
 

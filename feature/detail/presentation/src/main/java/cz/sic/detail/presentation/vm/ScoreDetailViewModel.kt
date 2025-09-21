@@ -8,6 +8,7 @@ import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.domain.usecase.GetScoreItemUseCase
 import cz.sic.utils.BaseViewModel
+import cz.sic.utils.fold
 import cz.sic.utils.getOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +27,6 @@ class ScoreDetailViewModel(
 
     override suspend fun handleUiAction(action: ScoreDetailContract.UiAction) {
         when (action) {
-            is ScoreDetailContract.UiAction.OnAppear -> {}
             is ScoreDetailContract.UiAction.LoadScore -> loadScore(action.id!!, action.store!!)
             is ScoreDetailContract.UiAction.SaveScore -> saveScore()
             is ScoreDetailContract.UiAction.AddScore -> handleAddScore()
@@ -106,29 +106,21 @@ class ScoreDetailViewModel(
         _uiState.update { it.copy(editEnabled = false) }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            runCatching { getScoreItemUseCase(id, store) }
+            getScoreItemUseCase(id, store)
                 .fold(
-                    onSuccess = { result ->
-                        when (result) {
-                            null -> _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    events = it.events + ScoreDetailContract.UiEvent.ShowError("Score not found")
-                                )
-                            }
-                            else -> _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    score = result.getOrNull()
-                                )
-                            }
-                        }
-                    },
-                    onFailure = { t ->
+                    success = { result ->
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                events = it.events + ScoreDetailContract.UiEvent.ShowError(t.message ?: "Unknown error")
+                                score = result
+                            )
+                        }
+                    },
+                    error = { error ->
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                events = it.events + ScoreDetailContract.UiEvent.ShowError(error.throwable?.message ?: "Error loading score")
                             )
                         }
                     }
