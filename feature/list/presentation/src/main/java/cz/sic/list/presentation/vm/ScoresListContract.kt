@@ -6,11 +6,9 @@ import cz.sic.utils.UiActionAware
 import cz.sic.utils.UiStateAware
 
 class ScoresListContract {
-    data class UiState(
-        val isLoading: Boolean = true,
+    data class UiData(
         val scores: List<ScoreWithStore> = emptyList(),
         val selectedStore: Store = Store.Any,
-        val events: List<UiEvent> = emptyList()
     ): UiStateAware.UiData
 
     sealed interface UiAction: UiActionAware.UiAction {
@@ -26,9 +24,5 @@ class ScoresListContract {
         data class ShowDetail(val id: Long, val store: Store): UiEvent
 
         data object ShowAddScreen: UiEvent
-    }
-
-    sealed interface OutputEvent: UiStateAware.OutputEvent {
-
     }
 }

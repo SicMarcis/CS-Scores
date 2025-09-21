@@ -56,8 +56,8 @@ fun ScoreListScreen(
         viewModel.onUiAction(ScoresListContract.UiAction.OnAppear)
     }
 
-    LaunchedEffect(state.events) {
-        state.events.forEach { event ->
+    LaunchedEffect(state.uiEvents) {
+        state.uiEvents.forEach { event ->
             viewModel.onUiEventConsumed(event)
             when (event) {
                 is ScoresListContract.UiEvent.ShowError -> {
@@ -72,7 +72,8 @@ fun ScoreListScreen(
     }
 
     ScoreListContent(
-        uiState = state,
+        isLoading = state.isLoading,
+        uiState = state.uiData,
         onItemClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(id, store)) },
         onItemLongClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnDeleteClick(id, store)) },
         onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
@@ -82,7 +83,8 @@ fun ScoreListScreen(
 
 @Composable
 fun ScoreListContent(
-    uiState: ScoresListContract.UiState,
+    isLoading: Boolean,
+    uiState: ScoresListContract.UiData,
     modifier: Modifier = Modifier,
     onItemClick: (Long, Store) -> Unit,
     onItemLongClick: (Long, Store) -> Unit,
@@ -106,7 +108,7 @@ fun ScoreListContent(
                 .height(16.dp)
                 .padding(8.dp))
 
-            if (uiState.scores.isEmpty() && !uiState.isLoading) {
+            if (uiState.scores.isEmpty() && !isLoading) {
                 EmptyContent()
             } else {
                 ScoreList (
@@ -146,7 +148,7 @@ fun ScoreListContent(
             )
         }
 
-        if(uiState.isLoading) {
+        if(isLoading) {
             DsLoadingContent(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -224,8 +226,8 @@ fun EmptyContentPreview() {
 private fun ScoreListContentPreview() {
     ScoreTheme {
         ScoreListContent(
-            uiState = ScoresListContract.UiState(
-                isLoading = true,
+            isLoading = true,
+            uiState = ScoresListContract.UiData(
                 scores = listOf(
                     ScoreWithStore(
                         Score(
@@ -247,8 +249,7 @@ private fun ScoreListContentPreview() {
                     )
 
                 ),
-                selectedStore = Store.Any,
-                events = emptyList()
+                selectedStore = Store.Any
             ),
             onItemClick = {_,_ -> },
             onStoreSelected = { },

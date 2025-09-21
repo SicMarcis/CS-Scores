@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cz.sic.detail.presentation.R
 import cz.sic.detail.presentation.model.Mode
 import cz.sic.detail.presentation.vm.ScoreDetailContract
 import cz.sic.detail.presentation.vm.ScoreDetailViewModel
@@ -54,8 +55,8 @@ fun ScoreDetailScreen(
         }
     }
 
-    LaunchedEffect(state.events) {
-        state.events.forEach { event ->
+    LaunchedEffect(state.uiEvents) {
+        state.uiEvents.forEach { event ->
             viewModel.onUiEventConsumed(event)
             when (event) {
                 is ScoreDetailContract.UiEvent.ShowError -> {
@@ -67,7 +68,8 @@ fun ScoreDetailScreen(
     }
 
     ScoreDetailContent(
-        state = state,
+        isLoading = state.isLoading,
+        state = state.uiData,
         onNameChanged = {
             viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Name(it))
         },
@@ -88,7 +90,8 @@ fun ScoreDetailScreen(
 
 @Composable
 fun ScoreDetailContent(
-    state: ScoreDetailContract.UiState,
+    isLoading: Boolean,
+    state: ScoreDetailContract.UiData,
     onNameChanged: (String) -> Unit = {},
     onAddressChanged: (String) -> Unit = {},
     onDurationChanged: (String) -> Unit = {},
@@ -178,14 +181,14 @@ fun ScoreDetailContent(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
-                        text = "save",//stringResource(R.string.button_save),
+                        text = stringResource(R.string.button_save),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
 
         }
-        if(state.isLoading) {
+        if(isLoading) {
             DsLoadingContent(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -199,8 +202,8 @@ fun ScoreDetailContent(
 private fun ScoreDetailContentPreview() {
     ScoreTheme {
         ScoreDetailContent(
-            state = ScoreDetailContract.UiState(
-                isLoading = true,
+            isLoading = true,
+            state = ScoreDetailContract.UiData(
                 score = ScoreWithStore(
                     Score(
                         id = 1,

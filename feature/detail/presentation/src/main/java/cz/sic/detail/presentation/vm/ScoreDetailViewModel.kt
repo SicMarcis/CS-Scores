@@ -8,22 +8,23 @@ import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.domain.usecase.GetScoreItemUseCase
 import cz.sic.utils.BaseViewModel
+import cz.sic.utils.UiStateAware
 import cz.sic.utils.fold
-import cz.sic.utils.getOrNull
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ScoreDetailViewModel(
     val getScoreItemUseCase: GetScoreItemUseCase,
     val changeScoresUseCase: ChangeScoresUseCase
-): BaseViewModel<ScoreDetailContract.UiAction, ScoreDetailContract.UiEvent>() {
-
-    private val _uiState = MutableStateFlow (ScoreDetailContract.UiState())
-    val uiState: StateFlow<ScoreDetailContract.UiState> =
-        _uiState.asStateFlow()
+): BaseViewModel<
+        ScoreDetailContract.UiAction,
+        ScoreDetailContract.UiEvent,
+        ScoreDetailContract.UiData
+        >(
+    initialState = UiStateAware.UiState(
+        isLoading = true,
+        uiData = ScoreDetailContract.UiData()
+    )
+) {
 
     override suspend fun handleUiAction(action: ScoreDetailContract.UiAction) {
         when (action) {
@@ -35,133 +36,155 @@ class ScoreDetailViewModel(
     }
 
     private fun handleAddScore() {
-        _uiState.update {
-            it.copy(
-                isLoading = false,
-                editEnabled = true,
-                score = ScoreWithStore(
-                    score = Score(
-                        name = "",
-                        address = "",
-                        duration = 0,
+        updateUi(
+            isLoading = false,
+            uiData = {
+                it.copy(
+                    editEnabled = true,
+                    score = ScoreWithStore(
+                        score = Score(
+                            name = "",
+                            address = "",
+                            duration = 0,
+                        ),
+                        store = Store.Any
                     ),
-                    store = Store.Any
-                ),
-                mode = Mode.Add
-            )
-        }
+                    mode = Mode.Add
+                )
+            }
+        )
     }
     private fun updateValue(change: ScoreDetailContract.UiAction.ValueChange<*>) {
         when (change) {
             is ScoreDetailContract.UiAction.ValueChange.Name -> {
-                val current = _uiState.value.score ?: return
-                _uiState.update {
-                    it.copy(
-                        score = current.copy(
-                            score = current.score.copy(
-                                name = change.value
+                updateUi(
+                    isLoading = false,
+                    uiData = { data ->
+                        val current = data.score
+                        current?.let {
+                            data.copy(
+                                score = current.copy(
+                                    score = current.score.copy(
+                                        name = change.value
+                                    )
+                                )
                             )
-                        )
-                    )
-                }
+                        } ?: data
+                    }
+                )
             }
             is ScoreDetailContract.UiAction.ValueChange.Address -> {
-                val current = _uiState.value.score ?: return
-                _uiState.update {
-                    it.copy(
-                        score = current.copy(
-                            score = current.score.copy(
-                                address = change.value
+                updateUi(
+                    isLoading = false,
+                    uiData = { data ->
+                        val current = data.score
+                        current?.let {
+                            data.copy(
+                                score = current.copy(
+                                    score = current.score.copy(
+                                        address = change.value
+                                    )
+                                )
                             )
-                        )
-                    )
-                }
+                        } ?: data
+                    }
+                )
             }
             is ScoreDetailContract.UiAction.ValueChange.Duration -> {
-                val current = _uiState.value.score ?: return
-                val duration = change.value.toIntOrNull() ?: 0
-                _uiState.update {
-                    it.copy(
-                        score = current.copy(
-                            score = current.score.copy(
-                                duration = duration
+                updateUi(
+                    isLoading = false,
+                    uiData = { data ->
+                        val current = data.score
+                        val duration = change.value.toIntOrNull() ?: 0
+                        current?.let {
+                            data.copy(
+                                score = current.copy(
+                                    score = current.score.copy(
+                                        duration = duration
+                                    )
+                                )
                             )
-                        )
-                    )
-                }
+                        } ?: data
+                    }
+                )
             }
             is ScoreDetailContract.UiAction.ValueChange.Location -> {
-                val current = _uiState.value.score ?: return
-                _uiState.update {
-                    it.copy(
-                        score = current.copy(
-                            store = change.value
-                        )
-                    )
-                }
+                updateUi(
+                    isLoading = false,
+                    uiData = { data ->
+                        val current = data.score
+                        current?.let {
+                            data.copy(
+                                score = current.copy(
+                                    store = change.value,
+                                )
+                            )
+                        } ?: data
+                    }
+                )
             }
         }
     }
     private fun loadScore(id: Long, store: Store) {
-        _uiState.update { it.copy(editEnabled = false) }
+        updateUi(
+            isLoading = true,
+            uiData = { it.copy(editEnabled = false) }
+        )
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
             getScoreItemUseCase(id, store)
                 .fold(
                     success = { result ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                score = result
-                            )
-                        }
+                        updateUi(
+                            isLoading = false,
+                            uiData = {
+                                it.copy(
+                                    score = result
+                                )
+                            }
+                        )
                     },
                     error = { error ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                events = it.events + ScoreDetailContract.UiEvent.ShowError(error.throwable?.message ?: "Error loading score")
-                            )
-                        }
+                        updateUiEvents(
+                            isLoading = false,
+                            uiEvents = {
+                                it + ScoreDetailContract.UiEvent.ShowError(error.throwable?.message ?: "Error loading score")
+                            }
+                        )
                     }
                 )
         }
     }
 
     private fun saveScore() {
-        val score = _uiState.value.score
+
+        val score = _uiState.value.uiData.score
         val store = score?.store
         if(score == null || store == null) {
-            _uiState.update {
-                it.copy(events = it.events + ScoreDetailContract.UiEvent.ShowError("Input form not valid"))
-            }
+            updateUiEvents(
+                isLoading = false,
+                uiEvents = {
+                    it + ScoreDetailContract.UiEvent.ShowError("Input form not valid")
+                }
+            )
             return
         }
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            updateIsLoading(true)
             runCatching { changeScoresUseCase.saveScore(score.score, store) }
                 .fold(
                     onSuccess = {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                events = it.events + ScoreDetailContract.UiEvent.ScoreSaved
-                            )
-                        }
+                        updateUiEvents(
+                            isLoading = false,
+                            uiEvents = { it + ScoreDetailContract.UiEvent.ScoreSaved }
+                        )
                     },
                     onFailure = { t ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                events = it.events + ScoreDetailContract.UiEvent.ShowError("Error saving: ${t.message}")
-                            )
-                        }
+                        updateUiEvents(
+                            isLoading = false,
+                            uiEvents = { it + ScoreDetailContract.UiEvent.ShowError("Error saving: ${t.message}") }
+                        )
                     }
                 )
         }
-    }
-
-    override fun onUiEventConsumed(uiEvent: ScoreDetailContract.UiEvent) {
-        _uiState.update { it.copy(events = it.events - uiEvent) }
     }
 }

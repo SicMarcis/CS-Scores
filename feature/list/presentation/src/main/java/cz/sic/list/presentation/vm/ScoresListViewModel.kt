@@ -1,18 +1,14 @@
 package cz.sic.list.presentation.vm
 
 import androidx.lifecycle.viewModelScope
-import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
 import cz.sic.domain.usecase.DeleteScoreUseCase
 import cz.sic.domain.usecase.GetAllScoresUseCase
-import cz.sic.list.domain.usecase.TestDataUseCase
 import cz.sic.utils.BaseViewModel
+import cz.sic.utils.UiStateAware
 import cz.sic.utils.fold
 import cz.sic.utils.getOrNull
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -22,10 +18,16 @@ import kotlinx.coroutines.launch
 class ScoresListViewModel(
     val getScoresUseCase: GetAllScoresUseCase,
     val deleteScoreUseCase: DeleteScoreUseCase,
-): BaseViewModel<ScoresListContract.UiAction, ScoresListContract.UiEvent>() {
-
-    private val _uiState = MutableStateFlow (ScoresListContract.UiState())
-    val uiState: StateFlow<ScoresListContract.UiState> = _uiState.asStateFlow()
+): BaseViewModel<
+        ScoresListContract.UiAction,
+        ScoresListContract.UiEvent,
+        ScoresListContract.UiData
+        >(
+            initialState = UiStateAware.UiState(
+                isLoading = true,
+                uiData = ScoresListContract.UiData()
+            )
+        ) {
 
     private var observingJob: Job? = null
 
@@ -40,33 +42,38 @@ class ScoresListViewModel(
     }
 
     private fun onAppeared() {
-        observeScores(_uiState.value.selectedStore)
+        observeScores(_uiState.value.uiData.selectedStore)
     }
 
     private fun onScoreClick(id: Long, store: Store) {
-        _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowDetail(id, store)) }
+        updateUiEvents(
+            uiEvents = { it + ScoresListContract.UiEvent.ShowDetail(id, store) }
+        )
     }
 
     private fun onStoreSelect(store: Store) {
-        _uiState.update { it.copy(selectedStore = store) }
+        updateUi(
+            isLoading = false,
+            uiData = {
+                it.copy(selectedStore = store)
+            }
+        )
         observeScores(store)
     }
 
     private fun onAddStoreClick() {
-        _uiState.update {
-            it.copy(events = it.events + ScoresListContract.UiEvent.ShowAddScreen)
-        }
+        updateUiEvents(
+            uiEvents = { it + ScoresListContract.UiEvent.ShowAddScreen }
+        )
     }
 
     private fun deleteScore(id: Long, store: Store) {
         viewModelScope.launch {
             runCatching { deleteScoreUseCase(id, store) }
                 .onFailure { t ->
-                    _uiState.update {
-                        it.copy(
-                            events = it.events + ScoresListContract.UiEvent.ShowError("Error: ${t.message}")
-                        )
-                    }
+                    updateUiEvents(
+                        uiEvents = { it + ScoresListContract.UiEvent.ShowError("Error: ${t.message}") }
+                    )
                 }
         }
     }
@@ -78,34 +85,25 @@ class ScoresListViewModel(
             .onEach { data ->
                 data.fold(
                     success = {
-                        _uiState.update { it.copy(isLoading = false, scores = data.getOrNull().orEmpty()) }
+                        updateUi(
+                            isLoading = false,
+                            uiData = { it.copy(scores = data.getOrNull().orEmpty()) }
+                        )
                     },
                     error = { error ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                events = it.events + ScoresListContract.UiEvent.ShowError("Error loading data")
-                            )
-                        }
+                        updateUiEvents(
+                            isLoading = false,
+                            uiEvents = { it + ScoresListContract.UiEvent.ShowError("Error loading data") }
+                        )
                     }
                 )
             }
             .catch { t ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        events = it.events + ScoresListContract.UiEvent.ShowError("Error loading data: ${t.message}")
-                    )
-                }
+                updateUiEvents(
+                    isLoading = false,
+                    uiEvents = { it + ScoresListContract.UiEvent.ShowError("Error loading data: ${t.message}") }
+                )
             }
             .launchIn(viewModelScope)
-    }
-
-    override fun onUiEventConsumed(event: ScoresListContract.UiEvent) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                events = currentState.events - event
-            )
-        }
     }
 }
