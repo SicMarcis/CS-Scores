@@ -1,10 +1,10 @@
 package cz.sic.list.presentation.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -15,70 +15,97 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cz.sic.domain.model.Score
+import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.ds.components.BadgeType
+import cz.sic.ds.components.DsAppBar
 import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.ScoreItem
 import cz.sic.ds.components.ScoreList
+import cz.sic.ds.components.ToolbarState
 import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
-import cz.sic.domain.model.ScoreWithStore
 import cz.sic.list.presentation.R
 import cz.sic.list.presentation.vm.ScoresListContract
 import cz.sic.list.presentation.vm.ScoresListViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ScoreListScreen(
     viewModel: ScoresListViewModel = koinViewModel(),
-    snackbarHostState: SnackbarHostState,
     onNavigateToDetail: (Long, Store) -> Unit,
     onNavigateToAddScore: () -> Unit,
 ) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(viewModel) {
-        viewModel.onUiAction(ScoresListContract.UiAction.OnAppear)
-    }
+    Scaffold(
+        topBar = {
+            DsAppBar(
+                toolbarState = ToolbarState(
+                    title = R.string.screen_list_title,
+                    showBack = false
+                )
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) {  paddingValues ->
 
-    LaunchedEffect(state.uiEvents) {
-        state.uiEvents.forEach { event ->
-            viewModel.onUiEventConsumed(event)
-            when (event) {
-                is ScoresListContract.UiEvent.ShowError -> {
-                    snackbarHostState.showSnackbar(event.message)
+        LaunchedEffect(viewModel) {
+            viewModel.onUiAction(ScoresListContract.UiAction.OnAppear)
+        }
+
+        LaunchedEffect(state.uiEvents) {
+            state.uiEvents.forEach { event ->
+                viewModel.onUiEventConsumed(event)
+                when (event) {
+                    is ScoresListContract.UiEvent.ShowError -> {
+                        snackbarHostState.showSnackbar(event.message)
+                    }
+                    is ScoresListContract.UiEvent.ShowDetail -> {
+                        onNavigateToDetail(event.id, event.store)
+                    }
+                    ScoresListContract.UiEvent.ShowAddScreen -> onNavigateToAddScore()
                 }
-                is ScoresListContract.UiEvent.ShowDetail -> {
-                    onNavigateToDetail(event.id, event.store)
-                }
-                ScoresListContract.UiEvent.ShowAddScreen -> onNavigateToAddScore()
             }
         }
-    }
 
-    ScoreListContent(
-        isLoading = state.isLoading,
-        uiState = state.uiData,
-        onItemClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(id, store)) },
-        onItemLongClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnDeleteClick(id, store)) },
-        onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
-        onAddScoreClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnAddScoreClick) }
-    )
+        LaunchedEffect(Unit) {
+            snackbarHostState.showSnackbar("clicked")
+        }
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            ScoreListContent(
+                isLoading = state.isLoading,
+                uiState = state.uiData,
+                onItemClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnScoreClick(id, store)) },
+                onItemLongClick = { id, store -> viewModel.onUiAction(ScoresListContract.UiAction.OnDeleteClick(id, store)) },
+                onStoreSelected = { viewModel.onUiAction(ScoresListContract.UiAction.OnStoreSelect(it))},
+                onAddScoreClick = { viewModel.onUiAction(ScoresListContract.UiAction.OnAddScoreClick) }
+            )
+        }
+    }
 }
 
 @Composable
@@ -170,34 +197,6 @@ fun ScoreWithStore.toScoreItem(): ScoreItem {
             Store.Any -> null
         }
     )
-}
-
-@Composable
-fun StoreFilter(
-    selectedStore: Store,
-    onStoreSelected: (Store) -> Unit
-) {
-    SingleChoiceSegmentedButtonRow(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Store.entries
-            .reversed()
-            .forEachIndexed { index, store ->
-            val isSelected = store == selectedStore
-            SegmentedButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onStoreSelected(store) },
-                selected = isSelected,
-                shape = SegmentedButtonDefaults.itemShape(index, 3),
-            ) {
-                Text(when (store) {
-                    Store.Local -> stringResource(R.string.store_local)
-                    Store.Remote -> stringResource(R.string.store_remote)
-                    Store.Any -> stringResource(R.string.store_any)
-                })
-            }
-        }
-    }
 }
 
 @Composable

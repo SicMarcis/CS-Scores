@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,11 +18,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -38,10 +40,12 @@ import cz.sic.domain.model.Score
 import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.ds.components.BadgeType
+import cz.sic.ds.components.DsAppBar
 import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.DsRowRadioButton
-import cz.sic.ds.components.DsTextField
 import cz.sic.ds.components.DsStoreBadge
+import cz.sic.ds.components.DsTextField
+import cz.sic.ds.components.ToolbarState
 import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 import org.koin.androidx.compose.koinViewModel
@@ -52,49 +56,69 @@ fun ScoreDetailScreen(
     store: Store?,
     mode: Mode,
     viewModel: ScoreDetailViewModel = koinViewModel(),
-    snackbarHostState: SnackbarHostState,
     onBack: () -> Unit = {},
 ) {
+
+    val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(id) {
-        when (mode) {
-            Mode.View -> viewModel.onUiAction(ScoreDetailContract.UiAction.LoadScore(id, store, mode))
-            Mode.Add -> viewModel.onUiAction(ScoreDetailContract.UiAction.AddScore)
-        }
-    }
-
-    LaunchedEffect(state.uiEvents) {
-        state.uiEvents.forEach { event ->
-            viewModel.onUiEventConsumed(event)
-            when (event) {
-                is ScoreDetailContract.UiEvent.ShowError -> {
-                    snackbarHostState.showSnackbar(event.message)
+    Scaffold(
+        topBar = {
+            DsAppBar(
+                toolbarState = ToolbarState(
+                    title = R.string.screen_detail_title,
+                    showBack = true
+                ),
+                onBack = onBack
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            LaunchedEffect(id) {
+                when (mode) {
+                    Mode.View -> viewModel.onUiAction(ScoreDetailContract.UiAction.LoadScore(id, store, mode))
+                    Mode.Add -> viewModel.onUiAction(ScoreDetailContract.UiAction.AddScore)
                 }
-                ScoreDetailContract.UiEvent.ScoreSaved -> onBack()
             }
+
+            LaunchedEffect(state.uiEvents) {
+                state.uiEvents.forEach { event ->
+                    viewModel.onUiEventConsumed(event)
+                    when (event) {
+                        is ScoreDetailContract.UiEvent.ShowError -> {
+                            snackbarHostState.showSnackbar(event.message)
+                        }
+                        ScoreDetailContract.UiEvent.ScoreSaved -> onBack()
+                    }
+                }
+            }
+
+            ScoreDetailContent(
+                isLoading = state.isLoading,
+                state = state.uiData,
+                onNameChanged = {
+                    viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Name(it))
+                },
+                onAddressChanged = {
+                    viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Address(it))
+                },
+                onDurationChanged = {
+                    viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Duration(it))
+                },
+                onStoreChanged = {
+                    viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Location(it))
+                },
+                onSaveClicked = {
+                    viewModel.onUiAction(ScoreDetailContract.UiAction.SaveScore)
+                }
+            )
         }
     }
-
-    ScoreDetailContent(
-        isLoading = state.isLoading,
-        state = state.uiData,
-        onNameChanged = {
-            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Name(it))
-        },
-        onAddressChanged = {
-            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Address(it))
-        },
-        onDurationChanged = {
-            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Duration(it))
-        },
-        onStoreChanged = {
-            viewModel.onUiAction(ScoreDetailContract.UiAction.ValueChange.Location(it))
-        },
-        onSaveClicked = {
-            viewModel.onUiAction(ScoreDetailContract.UiAction.SaveScore)
-        }
-    )
 }
 
 @Composable
@@ -112,7 +136,8 @@ fun ScoreDetailContent(
         return
     }
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .padding(16.dp)
     ) {
 
@@ -177,9 +202,8 @@ fun ScoreDetailContent(
                     )
                 }
             }
-
-
         }
+
         if(isLoading) {
             DsLoadingContent(
                 modifier = Modifier
