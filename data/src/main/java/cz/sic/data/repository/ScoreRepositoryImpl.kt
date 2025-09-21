@@ -1,5 +1,7 @@
 package cz.sic.data.repository
 
+import cz.sic.data.source.LocalSource
+import cz.sic.data.source.RemoteSource
 import cz.sic.data.source.db.RoomSource
 import cz.sic.data.source.firebase.FirebaseSource
 import cz.sic.domain.model.Score
@@ -8,8 +10,8 @@ import cz.sic.domain.repository.ScoreRepository
 import kotlinx.coroutines.flow.Flow
 
 class ScoreRepositoryImpl(
-    private val localStore: RoomSource,
-    private val remoteStore: FirebaseSource
+    private val localStore: LocalSource<Score>,
+    private val remoteStore: RemoteSource<Score>
 ): ScoreRepository {
 
     override suspend fun getAllScores(): List<Score> {
@@ -30,25 +32,22 @@ class ScoreRepositoryImpl(
 
     override fun observeScoresByStore(store: Store): Flow<List<Score>> {
         return when (store) {
-            Store.Local -> localStore.observeScores()
-            Store.Remote -> remoteStore.observeScores()
+            Store.Local -> localStore.observe()
+            Store.Remote -> remoteStore.observe()
             Store.Any -> throw RuntimeException("Invalid State")
         }
     }
-
-    override fun observeScores(): Flow<List<Score>> =
-        localStore.observeScores()
 
     override suspend fun saveScore(
         score: Score,
         store: Store
     ) {
         when (store) {
-            Store.Local -> localStore.saveScore(score)
-            Store.Remote -> remoteStore.saveScore(score)
+            Store.Local -> localStore.save(score)
+            Store.Remote -> remoteStore.save(score)
             Store.Any -> {
-                localStore.saveScore(score)
-                remoteStore.saveScore(score)
+                localStore.save(score)
+                remoteStore.save(score)
             }
         }
     }
@@ -58,8 +57,8 @@ class ScoreRepositoryImpl(
         store: Store
     ): Score? {
         return when (store) {
-            Store.Local -> localStore.getScore(id)
-            Store.Remote -> remoteStore.getScore(id)
+            Store.Local -> localStore.getItem(id)
+            Store.Remote -> remoteStore.getItem(id)
             Store.Any -> {
                 throw RuntimeException("Illegal store '$store' provided.")
             }
@@ -68,13 +67,14 @@ class ScoreRepositoryImpl(
 
     override suspend fun deleteScore(id: Long, store: Store) {
         when (store) {
-            Store.Local -> localStore.deleteScore(id)
-            Store.Remote -> remoteStore.deleteScore(id)
+            Store.Local -> localStore.delete(id)
+            Store.Remote -> remoteStore.delete(id)
             Store.Any -> throw RuntimeException("Illegal store '$store' provided.")
         }
     }
 
     override suspend fun deleAllLocalScores() {
-        localStore.deleteAllScores()
+        localStore.deleteAll()
+        remoteStore.deleteAll()
     }
 }

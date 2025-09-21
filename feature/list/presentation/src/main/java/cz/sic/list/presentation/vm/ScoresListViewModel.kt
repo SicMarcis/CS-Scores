@@ -99,7 +99,6 @@ class ScoresListViewModel(
             .onEach { data ->
                 _uiState.update { it.copy(isLoading = false, scores = data) }
             }
-
             .launchIn(viewModelScope)
     }
 

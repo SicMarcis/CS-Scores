@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.ktx.toObjects
+import cz.sic.data.source.RemoteSource
 import cz.sic.data.source.firebase.model.ScoreEntry
 import cz.sic.data.source.firebase.model.toDomain
 import cz.sic.data.source.firebase.model.toEntry
@@ -15,7 +16,7 @@ import cz.sic.domain.model.Score
 
 class FirebaseSource(
     private val storage: FirebaseFirestore
-): BaseSource<Score> {
+): RemoteSource<Score> {
 
     private val COLLECTION = "scores"
 
@@ -28,7 +29,7 @@ class FirebaseSource(
 
     }
 
-    fun observeScores(): Flow<List<Score>> =
+    override fun observe(): Flow<List<Score>> =
         storage.collection(COLLECTION)
             .snapshots(MetadataChanges.INCLUDE)
             .map { snapshot ->
@@ -38,14 +39,29 @@ class FirebaseSource(
                 it.map { it.toDomain() }
             }
 
-    suspend fun saveScore(score: Score) {
+    override suspend fun deleteAll() {
+        val collectionRef = storage.collection(COLLECTION)
+        val querySnapshot = collectionRef.get().await()
+
+        // Firestore allows a maximum of 500 operations in a single batch.
+        // We chunk the documents to handle collections of any size.
+        querySnapshot.documents.chunked(500).forEach { chunk ->
+            val batch = storage.batch()
+            for (document in chunk) {
+                batch.delete(document.reference)
+            }
+            batch.commit().await()
+        }
+    }
+
+    override suspend fun save(score: Score) {
         storage.collection(COLLECTION)
             .document(score.id.toString())
             .set(score.toEntry())
             .await()
     }
 
-    suspend fun getScore(id: Long): Score? {
+    override suspend fun getItem(id: Long): Score? {
         val document = storage.collection(COLLECTION)
             .document(id.toString())
             .get()
@@ -57,7 +73,7 @@ class FirebaseSource(
         }
     }
 
-    suspend fun deleteScore(id: Long) {
+    override suspend fun delete(id: Long) {
         storage.collection(COLLECTION)
             .document(id.toString())
             .delete()

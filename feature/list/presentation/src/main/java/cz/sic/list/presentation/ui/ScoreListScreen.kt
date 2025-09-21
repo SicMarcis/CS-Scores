@@ -106,7 +106,7 @@ fun ScoreListContent(
                 .height(16.dp)
                 .padding(8.dp))
 
-            if (uiState.scores.isEmpty()) {
+            if (uiState.scores.isEmpty() && !uiState.isLoading) {
                 EmptyContent()
             } else {
                 ScoreList (

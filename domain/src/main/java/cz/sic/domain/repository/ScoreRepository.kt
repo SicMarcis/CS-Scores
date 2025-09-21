@@ -12,8 +12,6 @@ interface ScoreRepository {
 
     fun observeScoresByStore(store: Store) : Flow<List<Score>>
 
-    fun observeScores() : Flow<List<Score>>
-
     suspend fun saveScore(score: Score, store: Store)
 
     suspend fun deleteScore(id: Long, store: Store)

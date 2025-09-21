@@ -1,6 +1,7 @@
 package cz.sic.data.source.db
 
 import cz.sic.data.source.BaseSource
+import cz.sic.data.source.LocalSource
 import cz.sic.data.source.db.model.toDomain
 import cz.sic.data.source.db.model.toEntity
 import cz.sic.domain.model.Score
@@ -10,29 +11,29 @@ import kotlin.collections.map
 
 class RoomSource(
     val storage: ScoreDao
-): BaseSource<Score> {
+): LocalSource<Score> {
 
     override suspend fun getData(): List<Score> =
         storage.getAllScores()
             .map { it.toDomain() }
 
-    suspend fun saveScore(score: Score) {
+    override suspend fun save(score: Score) {
         storage.insert(score.toEntity())
     }
 
-    suspend fun deleteScore(id: Long) {
+    override suspend fun delete(id: Long) {
         storage.deleteById(id)
     }
 
-    fun observeScores(): Flow<List<Score>> =
+    override fun observe(): Flow<List<Score>> =
         storage.observeAll()
             .map { list -> list.map { it.toDomain() } }
 
-    suspend fun deleteAllScores() {
+    override suspend fun deleteAll() {
         storage.deleteAll()
     }
 
-    suspend fun getScore(id: Long): Score? {
+    override suspend fun getItem(id: Long): Score? {
         return storage.getById(id)?.toDomain()
     }
 }
