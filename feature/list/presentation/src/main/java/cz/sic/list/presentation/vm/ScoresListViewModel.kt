@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 class ScoresListViewModel(
     val getScoresUseCase: GetAllScoresUseCase,
     val deleteScoreUseCase: DeleteScoreUseCase,
-    val testScoresUseCase: TestDataUseCase
 ): BaseViewModel<ScoresListContract.UiAction, ScoresListContract.UiEvent>() {
 
     private val _uiState = MutableStateFlow (ScoresListContract.UiState())
@@ -70,28 +69,6 @@ class ScoresListViewModel(
         }
     }
 
-
-    private fun refreshScores(store: Store) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            runCatching { getScoresUseCase.getScoresByStore(store) }
-                .fold(
-                    onSuccess = { result ->
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                scores = result
-                            )
-                        }
-                    },
-                    onFailure = {
-                        _uiState.update { it.copy(isLoading = false, events = it.events + ScoresListContract.UiEvent.ShowError("Error loading scores")) }
-                    }
-                )
-        }
-
-    }
-
     private fun observeScores(store: Store = Store.Any) {
         _uiState.update { it.copy(isLoading = true) }
         observingJob?.cancel()
@@ -116,37 +93,6 @@ class ScoresListViewModel(
                 }
             )
         }
-    }
-
-    private suspend fun insertTestData() {
-        testScoresUseCase.deleteAllScores()
-        testScoresUseCase.saveScore(
-            Score(
-                name = "Test score",
-                address = "Test address",
-                duration = 1234
-            ),
-            Store.Local
-        )
-
-        testScoresUseCase.saveScore(
-            Score(
-                name = "Test score 2",
-                address = "Test address 2",
-                duration = 4321
-            ),
-            Store.Local
-        )
-
-        testScoresUseCase.saveScore(
-            Score(
-                name = "Beh do konce",
-                address = "Mount Everest",
-                duration = System.currentTimeMillis().toInt()
-            ),
-            Store.Remote
-        )
-
     }
 
     override fun onUiEventConsumed(event: ScoresListContract.UiEvent) {
