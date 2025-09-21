@@ -14,12 +14,6 @@ import kotlinx.coroutines.flow.map
 class GetAllScoresUseCase(
     private val repo: ScoreRepository
 ) {
-    suspend fun getScoresByStore(store: Store): List<ScoreWithStore> {
-        return repo.getScoresByStore(store)
-            .map {
-                it.toScoreWithStore(store)
-            }
-    }
 
     fun observeScoresByStore(store: Store): Flow<Result<List<ScoreWithStore>>> =
         when (store) {

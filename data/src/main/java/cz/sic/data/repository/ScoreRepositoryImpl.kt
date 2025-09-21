@@ -45,30 +45,29 @@ class ScoreRepositoryImpl(
         }
     }
 
-    override suspend fun saveScore(
-        score: Score,
-        store: Store
-    ) {
+    override suspend fun saveScore(score: Score, store: Store) {
         when (store) {
             Store.Local -> localStore.save(score)
             Store.Remote -> remoteStore.save(score)
-            Store.Any -> {
-                localStore.save(score)
-                remoteStore.save(score)
-            }
+            Store.Any -> throw IllegalStateException("Illegal store '$store' provided.")
         }
     }
 
-    override suspend fun getScore(
-        id: Long,
-        store: Store
-    ): Score? {
+    override suspend fun getScore(id: Long, store: Store): Result<Score> {
         return when (store) {
             Store.Local -> localStore.getItem(id)
             Store.Remote -> remoteStore.getItem(id)
             Store.Any -> {
                 throw RuntimeException("Illegal store '$store' provided.")
             }
+        }.let { data ->
+            data?.let {
+                Result.Success(it)
+            } ?: Result.Error(
+                error = ErrorResult.General(
+                    RuntimeException("Score with id '$id' not found in store '$store'.")
+                )
+            )
         }
     }
 

@@ -19,5 +19,5 @@ interface ScoreRepository {
 
     suspend fun deleAllLocalScores()
 
-    suspend fun getScore(id: Long, store: Store): Score?
+    suspend fun getScore(id: Long, store: Store): Result<Score>
 }

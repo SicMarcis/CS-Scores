@@ -8,6 +8,7 @@ import cz.sic.domain.model.ScoreWithStore
 import cz.sic.domain.model.Store
 import cz.sic.domain.usecase.GetScoreItemUseCase
 import cz.sic.utils.BaseViewModel
+import cz.sic.utils.getOrNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -118,7 +119,7 @@ class ScoreDetailViewModel(
                             else -> _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    score = result
+                                    score = result.getOrNull()
                                 )
                             }
                         }

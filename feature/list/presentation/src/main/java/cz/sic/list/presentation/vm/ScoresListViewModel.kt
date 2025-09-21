@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -88,25 +89,16 @@ class ScoresListViewModel(
                         }
                     }
                 )
-
+            }
+            .catch { t ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        events = it.events + ScoresListContract.UiEvent.ShowError("Error loading data: ${t.message}")
+                    )
+                }
             }
             .launchIn(viewModelScope)
-    }
-
-    private fun loadScores(store: Store) {
-        viewModelScope.launch {
-            //insertTestData()
-            runCatching {
-                getScoresUseCase.getScoresByStore(store)
-            }.fold(
-                onSuccess = { result ->
-                    _uiState.update { it.copy(scores = result) }
-                },
-                onFailure = {
-                    _uiState.update { it.copy(events = it.events + ScoresListContract.UiEvent.ShowError("Error loading scores")) }
-                }
-            )
-        }
     }
 
     override fun onUiEventConsumed(event: ScoresListContract.UiEvent) {
