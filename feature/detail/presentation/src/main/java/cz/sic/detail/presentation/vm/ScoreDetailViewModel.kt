@@ -77,11 +77,10 @@ class ScoreDetailViewModel(
                 updateUi(
                     isLoading = false,
                     uiData = { data ->
-                        val current = data.score
-                        current?.let {
+                        data.score?.let {
                             data.copy(
-                                score = current.copy(
-                                    score = current.score.copy(
+                                score = data.score.copy(
+                                    score = data.score.score.copy(
                                         address = change.value
                                     )
                                 )
@@ -91,15 +90,22 @@ class ScoreDetailViewModel(
                 )
             }
             is ScoreDetailContract.UiAction.ValueChange.Duration -> {
+                val duration = change.value.toIntOrNull()
+                if(duration == null) {
+                    updateUiEvents(
+                        uiEvents = {
+                            it + ScoreDetailContract.UiEvent.ShowError("Duration must be a number")
+                        }
+                    )
+                    return
+                }
                 updateUi(
                     isLoading = false,
                     uiData = { data ->
-                        val current = data.score
-                        val duration = change.value.toIntOrNull() ?: 0
-                        current?.let {
+                        data.score?.let {
                             data.copy(
-                                score = current.copy(
-                                    score = current.score.copy(
+                                score = data.score.copy(
+                                    score = data.score.score.copy(
                                         duration = duration
                                     )
                                 )
@@ -112,10 +118,9 @@ class ScoreDetailViewModel(
                 updateUi(
                     isLoading = false,
                     uiData = { data ->
-                        val current = data.score
-                        current?.let {
+                        data.score?.let {
                             data.copy(
-                                score = current.copy(
+                                score = data.score.copy(
                                     store = change.value,
                                 )
                             )
