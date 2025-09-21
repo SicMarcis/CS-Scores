@@ -5,7 +5,6 @@ import cz.sic.data.di.dataModule
 import cz.sic.detail.domain.di.detailDomainModule
 import cz.sic.detail.presentation.di.detailPresentationModule
 import cz.sic.domain.di.domainModule
-import cz.sic.list.data.di.listDataModule
 import cz.sic.list.domain.di.listDomainModule
 import cz.sic.list.presentation.di.listPresentationModule
 import org.koin.android.ext.koin.androidContext
@@ -25,7 +24,6 @@ class ScoresApp: Application() {
                 dataModule,
                 listPresentationModule,
                 listDomainModule,
-                listDataModule,
                 listPresentationModule,
                 detailDomainModule,
                 detailPresentationModule

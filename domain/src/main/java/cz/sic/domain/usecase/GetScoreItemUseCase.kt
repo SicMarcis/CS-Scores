@@ -11,8 +11,8 @@ interface GetScoreItemUseCase {
     suspend operator fun invoke(id: Long, store: Store): Result<ScoreWithStore>
 }
 
-class GetScoreItemUseCaseImpl(
-    val repo: ScoreRepository
+internal class GetScoreItemUseCaseImpl(
+    private val repo: ScoreRepository
 ): GetScoreItemUseCase {
 
     override suspend fun invoke(id: Long, store: Store): Result<ScoreWithStore> {

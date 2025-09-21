@@ -1,7 +1,6 @@
 package cz.sic.ds.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -22,12 +21,12 @@ import cz.sic.ds.utils.DsPreview
 
 @Composable
 fun DsTextField(
+    modifier: Modifier = Modifier,
     value: String,
     label: String,
     enabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    onValueChanged: (String) -> Unit,
-    modifier: Modifier
+    onValueChanged: (String) -> Unit
 ) {
     var localValue by rememberSaveable { mutableStateOf(value) }
     LaunchedEffect(value) { localValue = value }
@@ -44,7 +43,6 @@ fun DsTextField(
         keyboardOptions = keyboardOptions,
         enabled = enabled,
         colors = TextFieldDefaults.colors(
-            // Make container and indicator transparent to rely on the manual border
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,

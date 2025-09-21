@@ -35,7 +35,7 @@ import cz.sic.ds.components.BadgeType
 import cz.sic.ds.components.DsAppBar
 import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.ScoreItem
-import cz.sic.ds.components.ScoreList
+import cz.sic.ds.components.DsScoreList
 import cz.sic.ds.components.ToolbarState
 import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
@@ -87,9 +87,6 @@ fun ScoreListScreen(
             }
         }
 
-        LaunchedEffect(Unit) {
-            snackbarHostState.showSnackbar("clicked")
-        }
         Box(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
@@ -138,8 +135,8 @@ fun ScoreListContent(
             if (uiState.scores.isEmpty() && !isLoading) {
                 EmptyContent()
             } else {
-                ScoreList (
-                    uiState.scores.map { it.toScoreItem() },
+                DsScoreList (
+                    scores = uiState.scores.map { it.toScoreItem() },
                     onClick = { item ->
                         val store = when (item.badgeType) {
                             BadgeType.Local -> Store.Local

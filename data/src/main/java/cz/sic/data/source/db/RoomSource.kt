@@ -1,13 +1,11 @@
 package cz.sic.data.source.db
 
-import cz.sic.data.source.BaseSource
 import cz.sic.data.source.LocalSource
 import cz.sic.data.source.db.model.toDomain
 import cz.sic.data.source.db.model.toEntity
 import cz.sic.domain.model.Score
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlin.collections.map
 
 class RoomSource(
     val storage: ScoreDao

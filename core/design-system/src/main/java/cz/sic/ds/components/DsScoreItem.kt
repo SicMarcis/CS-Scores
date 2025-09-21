@@ -31,16 +31,14 @@ import cz.sic.ds.utils.DsPreview
 
 @Composable
 fun DsScoreItem(
+    modifier: Modifier = Modifier,
     item: ScoreItem,
     onClick: () -> Unit,
-    onLongClick: () -> Unit = {},
-    modifier: Modifier = Modifier,
+    onLongClick: () -> Unit = {}
 ) {
     Card(
         shape = CardDefaults.elevatedShape,
-        colors = CardDefaults.cardColors(
-            //containerColor = Ds.Color.Theme.itemBackground
-        ),
+        colors = CardDefaults.cardColors(),
         modifier = modifier
             .combinedClickable(
                 onClick = onClick,
@@ -84,7 +82,6 @@ fun DsScoreItem(
                     Icon(
                         imageVector = Icons.Rounded.DateRange,
                         contentDescription = null,
-                        /*tint = Ds.Color.Theme.iconTint,*/
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     Spacer(Modifier.width(8.dp))
@@ -99,11 +96,8 @@ fun DsScoreItem(
                     .padding(8.dp)
                     .align(Alignment.TopEnd)
             )
-
         }
-
     }
-
 }
 
 data class ScoreItem(
@@ -119,7 +113,7 @@ data class ScoreItem(
 fun ScorePreview() {
     ScoreTheme {
         DsScoreItem(
-            ScoreItem(
+            item = ScoreItem(
                 name = "Test score",
                 address = "Test address",
                 duration = 1234,

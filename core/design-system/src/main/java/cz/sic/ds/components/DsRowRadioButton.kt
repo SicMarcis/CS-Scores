@@ -16,10 +16,10 @@ import cz.sic.ds.utils.DsPreview
 
 @Composable
 fun DsRowRadioButton(
+    modifier: Modifier = Modifier,
     label: String,
     selected: Boolean = false,
-    onSelected: () -> Unit = {},
-    modifier: Modifier,
+    onSelected: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
@@ -32,7 +32,6 @@ fun DsRowRadioButton(
         RadioButton(
             selected = selected,
             onClick = onSelected
-
         )
         Text(
             text = label,

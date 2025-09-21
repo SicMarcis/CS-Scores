@@ -15,14 +15,15 @@ import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
-fun ScoreList(
+fun DsScoreList(
+    modifier: Modifier = Modifier,
     scores: List<ScoreItem>,
     onClick: (ScoreItem) -> Unit,
     onLongClick: (ScoreItem) -> Unit = { },
 ) {
     LazyColumn(
+        modifier = modifier,
         contentPadding = PaddingValues(4.dp),
-
     ) {
         itemsIndexed(scores, key = { _, item ->  item.id }) { index, item ->
             if(index > 0) {
@@ -46,7 +47,7 @@ fun ScoreList(
 @Composable
 fun ScoreListPreview() {
     ScoreTheme {
-        ScoreList(
+        DsScoreList(
             scores = listOf(
                 ScoreItem(
                     id = 1,

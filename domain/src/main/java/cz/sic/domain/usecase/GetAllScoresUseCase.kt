@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-class GetAllScoresUseCase(
+interface GetAllScoresUseCase {
+    fun observeScoresByStore(store: Store): Flow<Result<List<ScoreWithStore>>>
+}
+internal class GetAllScoresUseCaseImpl(
     private val repo: ScoreRepository
-) {
+): GetAllScoresUseCase {
 
-    fun observeScoresByStore(store: Store): Flow<Result<List<ScoreWithStore>>> =
+    override fun observeScoresByStore(store: Store): Flow<Result<List<ScoreWithStore>>> =
         when (store) {
             Store.Local -> repo.observeScoresByStore(store)
                 .map { it.map { it.map { it.toScoreWithStore(store) } } }

@@ -15,9 +15,9 @@ import androidx.compose.ui.res.stringResource
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DsAppBar(
+    modifier: Modifier = Modifier,
     toolbarState: ToolbarState,
-    onBack: (() -> Unit) = { },
-    modifier: Modifier = Modifier
+    onBack: (() -> Unit) = { }
 ) {
     TopAppBar(
         title = { Text(stringResource(toolbarState.title)) },
