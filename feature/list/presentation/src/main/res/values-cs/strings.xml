@@ -5,4 +5,5 @@
     <string name="store_local">Lokální</string>
     <string name="store_remote">Server</string>
     <string name="store_any">Vše</string>
+    <string name="no_scores">Žádné zaznamy. Přidej nějaké</string>
 </resources>

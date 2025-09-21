@@ -105,25 +105,31 @@ fun ScoreListContent(
             Spacer(modifier = Modifier
                 .height(16.dp)
                 .padding(8.dp))
-            ScoreList (
-                uiState.scores.map { it.toScoreItem() },
-                onClick = { item ->
-                    val store = when (item.badgeType) {
-                        BadgeType.Local -> Store.Local
-                        BadgeType.Remote -> Store.Remote
-                        null -> null
+
+            if (uiState.scores.isEmpty()) {
+                EmptyContent()
+            } else {
+                ScoreList (
+                    uiState.scores.map { it.toScoreItem() },
+                    onClick = { item ->
+                        val store = when (item.badgeType) {
+                            BadgeType.Local -> Store.Local
+                            BadgeType.Remote -> Store.Remote
+                            null -> null
+                        }
+                        store?.let { onItemClick(item.id, store) }
+                    },
+                    onLongClick = { item ->
+                        val store = when (item.badgeType) {
+                            BadgeType.Local -> Store.Local
+                            BadgeType.Remote -> Store.Remote
+                            null -> null
+                        }
+                        store?.let { onItemLongClick(item.id, store) }
                     }
-                    store?.let { onItemClick(item.id, store) }
-                },
-                onLongClick = { item ->
-                    val store = when (item.badgeType) {
-                        BadgeType.Local -> Store.Local
-                        BadgeType.Remote -> Store.Remote
-                        null -> null
-                    }
-                    store?.let { onItemLongClick(item.id, store) }
-                }
-            )
+                )
+            }
+
         }
         FloatingActionButton(
             onClick = { onAddScoreClick() },
@@ -189,6 +195,27 @@ fun StoreFilter(
                 })
             }
         }
+    }
+}
+
+@Composable
+fun EmptyContent() {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            modifier = Modifier.align(Alignment.Center),
+            text = stringResource(R.string.no_scores),
+            style = MaterialTheme.typography.headlineLarge
+        )
+    }
+}
+
+@DsPreview
+@Composable
+fun EmptyContentPreview() {
+    ScoreTheme {
+        EmptyContent()
     }
 }
 

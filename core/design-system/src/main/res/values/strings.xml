@@ -2,4 +2,5 @@
 <resources>
     <string name="badge_local">Local</string>
     <string name="badge_remote">Server</string>
+
 </resources>

@@ -28,9 +28,7 @@ fun DsLoadingContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator(
-                progress = 0.5f,
-            )
+            CircularProgressIndicator()
         }
     }
 }

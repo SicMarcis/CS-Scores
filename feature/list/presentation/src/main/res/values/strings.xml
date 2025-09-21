@@ -5,4 +5,5 @@
     <string name="store_local">Local</string>
     <string name="store_remote">Remote</string>
     <string name="store_any">All</string>
+    <string name="no_scores">No scores. Add some</string>
 </resources>
