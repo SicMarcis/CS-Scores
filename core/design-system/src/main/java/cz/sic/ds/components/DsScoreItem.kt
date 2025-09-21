@@ -1,8 +1,6 @@
 package cz.sic.ds.components
 
-import android.widget.Space
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -36,14 +33,15 @@ import cz.sic.ds.utils.DsPreview
 fun DsScoreItem(
     item: ScoreItem,
     onClick: () -> Unit,
-    onLongClick: () -> Unit = {}
+    onLongClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     Card(
         shape = CardDefaults.elevatedShape,
         colors = CardDefaults.cardColors(
-            containerColor = Ds.Color.Theme.itemBackground
+            //containerColor = Ds.Color.Theme.itemBackground
         ),
-        modifier = Modifier
+        modifier = modifier
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
@@ -95,7 +93,7 @@ fun DsScoreItem(
                     )
                 }
             }
-            StoreBadge(
+            DsStoreBadge(
                 type = item.badgeType,
                 modifier = Modifier
                     .padding(8.dp)

@@ -1,5 +1,8 @@
 package cz.sic.ds.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -18,13 +21,19 @@ fun ScoreList(
     onLongClick: (ScoreItem) -> Unit = { },
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(4.dp)
+        contentPadding = PaddingValues(4.dp),
+
     ) {
         itemsIndexed(scores, key = { _, item ->  item.id }) { index, item ->
             if(index > 0) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
             DsScoreItem(
+                modifier = Modifier.animateItem(
+                    fadeInSpec = tween(durationMillis = 500),
+                    fadeOutSpec = tween(durationMillis = 500),
+                    placementSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy)
+                ),
                 item = item,
                 onClick = { onClick(item) },
                 onLongClick = { onLongClick(item) }

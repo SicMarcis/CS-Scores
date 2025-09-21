@@ -14,6 +14,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -130,6 +131,7 @@ fun ScoreListContent(
                 .align(Alignment.BottomEnd)
                 .padding(32.dp)
                 .wrapContentSize(),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
             shape = FloatingActionButtonDefaults.largeShape
         ) {
             Icon(

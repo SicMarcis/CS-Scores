@@ -17,8 +17,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val isDarkMode by rememberSaveable { mutableStateOf(false) } // You can implement a toggle for dark mode if needed
-            ScoreTheme(darkTheme = isDarkMode) {
+            ScoreTheme {
                 val navController = rememberNavController()
                 ScoresNavGraph(
                     navController = navController

@@ -21,14 +21,16 @@ fun DsLoadingContent(
 ) {
     Surface(
         modifier = modifier.size(100.dp),
-        color = Ds.Color.Transparent.t50,
+        color = Ds.Color.LocadingContent.background,
         shape = RoundedCornerShape(8.dp)
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                progress = 0.5f,
+            )
         }
     }
 }

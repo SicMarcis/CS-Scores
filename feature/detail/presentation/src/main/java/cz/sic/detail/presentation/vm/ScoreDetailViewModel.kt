@@ -102,12 +102,7 @@ class ScoreDetailViewModel(
         }
     }
     private fun loadScore(id: Long, store: Store) {
-        _uiState.update {
-            it.copy(
-                isLoading = true,
-                editEnabled = false
-            )
-        }
+        _uiState.update { it.copy(editEnabled = false) }
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             runCatching { getScoreItemUseCase(id, store) }
@@ -164,6 +159,7 @@ class ScoreDetailViewModel(
                     onFailure = { t ->
                         _uiState.update {
                             it.copy(
+                                isLoading = false,
                                 events = it.events + ScoreDetailContract.UiEvent.ShowError("Error saving: ${t.message}")
                             )
                         }

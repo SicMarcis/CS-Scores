@@ -31,7 +31,7 @@ import cz.sic.ds.components.BadgeType
 import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.DsRowRadioButton
 import cz.sic.ds.components.DsTextField
-import cz.sic.ds.components.StoreBadge
+import cz.sic.ds.components.DsStoreBadge
 import cz.sic.ds.theme.ScoreTheme
 import cz.sic.ds.utils.DsPreview
 import org.koin.androidx.compose.koinViewModel
@@ -141,7 +141,7 @@ fun ScoreDetailContent(
                 Store.Any -> null
             }?.let {
                 Spacer(Modifier.height(16.dp))
-                StoreBadge(
+                DsStoreBadge(
                     type = when (score.store) {
                         Store.Local -> BadgeType.Local
                         Store.Remote -> BadgeType.Remote
