@@ -16,22 +16,6 @@ class ScoreRepositoryImpl(
     private val remoteStore: RemoteSource<Score>
 ): ScoreRepository {
 
-    override suspend fun getAllScores(): List<Score> {
-        return localStore.getData()
-    }
-
-    override suspend fun getScoresByStore(store: Store): List<Score> {
-        return when (store) {
-            Store.Local -> localStore.getData()
-            Store.Remote -> remoteStore.getData()
-            Store.Any -> {
-                val local = localStore.getData()
-                val remote = remoteStore.getData()
-                local + remote
-            }
-        }
-    }
-
     override fun observeScoresByStore(store: Store): Flow<Result<List<Score>>> {
         return when (store) {
             Store.Local -> localStore.observe().map { Result.Success(it) }
@@ -79,7 +63,7 @@ class ScoreRepositoryImpl(
         }
     }
 
-    override suspend fun deleAllLocalScores() {
+    override suspend fun deleteAllScores() {
         localStore.deleteAll()
         remoteStore.deleteAll()
     }

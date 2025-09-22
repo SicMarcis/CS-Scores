@@ -3,7 +3,7 @@ package cz.sic.list.presentation.vm
 import androidx.lifecycle.viewModelScope
 import cz.sic.domain.model.Store
 import cz.sic.domain.usecase.DeleteScoreUseCase
-import cz.sic.domain.usecase.GetAllScoresUseCase
+import cz.sic.domain.usecase.ObserveScoresByStoreUseCase
 import cz.sic.utils.BaseViewModel
 import cz.sic.utils.UiStateAware
 import cz.sic.utils.fold
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ScoresListViewModel(
-    val getScoresUseCase: GetAllScoresUseCase,
+    val getScoresUseCase: ObserveScoresByStoreUseCase,
     val deleteScoreUseCase: DeleteScoreUseCase,
 ): BaseViewModel<
         ScoresListContract.UiAction,
@@ -81,7 +81,7 @@ class ScoresListViewModel(
     private fun observeScores(store: Store = Store.Any) {
         _uiState.update { it.copy(isLoading = true) }
         observingJob?.cancel()
-        observingJob = getScoresUseCase.observeScoresByStore(store)
+        observingJob = getScoresUseCase(store)
             .onEach { data ->
                 data.fold(
                     success = {

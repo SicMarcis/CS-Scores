@@ -10,6 +10,7 @@ interface DeleteScoreUseCase {
 internal class DeleteScoreUseCaseImpl(
     private val repo: ScoreRepository
 ): DeleteScoreUseCase {
+    
     override suspend fun invoke(id: Long, store: Store) {
         repo.deleteScore(id, store)
     }

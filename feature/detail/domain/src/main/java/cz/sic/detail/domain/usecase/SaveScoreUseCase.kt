@@ -4,21 +4,15 @@ import cz.sic.domain.model.Score
 import cz.sic.domain.model.Store
 import cz.sic.domain.repository.ScoreRepository
 
-interface ChangeScoresUseCase {
+interface SaveScoreUseCase {
 
     suspend fun saveScore(score: Score, store: Store)
-
-    suspend fun deleteAllScores()
 }
-internal class ChangeScoresUseCaseImpl(
+internal class SaveScoreUseCaseImpl(
     private val repo: ScoreRepository
-): ChangeScoresUseCase {
+): SaveScoreUseCase {
+
     override suspend fun saveScore(score: Score, store: Store) {
         repo.saveScore(score = score, store = store)
     }
-
-    override suspend fun deleteAllScores() {
-        repo.deleAllLocalScores()
-    }
-
 }

@@ -1,7 +1,7 @@
 package cz.sic.detail.presentation.vm
 
 import androidx.lifecycle.viewModelScope
-import cz.sic.detail.domain.usecase.ChangeScoresUseCase
+import cz.sic.detail.domain.usecase.SaveScoreUseCase
 import cz.sic.detail.presentation.model.Mode
 import cz.sic.domain.model.Score
 import cz.sic.domain.model.ScoreWithStore
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class ScoreDetailViewModel(
     val getScoreItemUseCase: GetScoreItemUseCase,
-    val changeScoresUseCase: ChangeScoresUseCase
+    val saveScoreUseCase: SaveScoreUseCase
 ): BaseViewModel<
         ScoreDetailContract.UiAction,
         ScoreDetailContract.UiEvent,
@@ -175,7 +175,7 @@ class ScoreDetailViewModel(
         }
         viewModelScope.launch {
             updateIsLoading(true)
-            runCatching { changeScoresUseCase.saveScore(score.score, store) }
+            runCatching { saveScoreUseCase.saveScore(score.score, store) }
                 .fold(
                     onSuccess = {
                         updateUiEvents(
