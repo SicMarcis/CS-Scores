@@ -46,7 +46,7 @@ import cz.sic.ds.components.DsRowRadioButton
 import cz.sic.ds.components.DsStoreBadge
 import cz.sic.ds.components.DsTextField
 import cz.sic.ds.components.ToolbarState
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 import org.koin.androidx.compose.koinViewModel
 
@@ -330,7 +330,7 @@ fun  ViewContent(
 @DsPreview
 @Composable
 fun EditContentPreview() {
-    ScoreTheme {
+    DsTheme {
         EditContent(
             score = ScoreWithStore(
                 Score(
@@ -348,7 +348,7 @@ fun EditContentPreview() {
 @DsPreview
 @Composable
 fun ViewContentPreview() {
-    ScoreTheme {
+    DsTheme {
         ViewContent(
             score = ScoreWithStore(
                 Score(
@@ -366,7 +366,7 @@ fun ViewContentPreview() {
 @DsPreview
 @Composable
 private fun ScoreDetailContentPreview() {
-    ScoreTheme {
+    DsTheme {
         ScoreDetailContent(
             isLoading = true,
             state = ScoreDetailContract.UiData(

@@ -11,7 +11,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
@@ -46,7 +46,7 @@ fun DsScoreList(
 @DsPreview
 @Composable
 fun ScoreListPreview() {
-    ScoreTheme {
+    DsTheme {
         DsScoreList(
             scores = listOf(
                 ScoreItem(

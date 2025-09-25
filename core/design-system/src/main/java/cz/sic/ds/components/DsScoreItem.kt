@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cz.sic.ds.theme.Ds
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
@@ -36,8 +38,14 @@ fun DsScoreItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit = {}
 ) {
-    Card(
-        shape = CardDefaults.elevatedShape,
+    ElevatedCard(
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 6.dp,
+            focusedElevation = 6.dp,
+            hoveredElevation = 4.dp,
+            draggedElevation = 4.dp,
+        ),
         colors = CardDefaults.cardColors(),
         modifier = modifier
             .combinedClickable(
@@ -50,8 +58,7 @@ fun DsScoreItem(
                 shape = RoundedCornerShape(8.dp)
             )
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp)),
-        elevation = CardDefaults.cardElevation(8.dp)
+            .clip(RoundedCornerShape(8.dp))
     ) {
         Box(
             modifier = Modifier
@@ -111,7 +118,7 @@ data class ScoreItem(
 @DsPreview
 @Composable
 fun ScorePreview() {
-    ScoreTheme {
+    DsTheme {
         DsScoreItem(
             item = ScoreItem(
                 name = "Test score",

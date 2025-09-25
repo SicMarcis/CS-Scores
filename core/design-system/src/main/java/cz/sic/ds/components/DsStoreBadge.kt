@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cz.sic.ds.R
 import cz.sic.ds.theme.Ds
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
@@ -50,7 +50,7 @@ enum class BadgeType {
 @DsPreview
 @Composable
 fun DsStoreBadgePreview() {
-    ScoreTheme {
+    DsTheme {
         DsStoreBadge(
             type = BadgeType.Local
         )

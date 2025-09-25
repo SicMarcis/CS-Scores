@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
@@ -43,7 +43,7 @@ fun DsRowRadioButton(
 @DsPreview
 @Composable
 fun DsRowRadioButtonPreview() {
-    ScoreTheme {
+    DsTheme {
         DsRowRadioButton(
             label = "label",
             modifier = Modifier

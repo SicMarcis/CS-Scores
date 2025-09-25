@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cz.sic.ds.theme.Ds
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 
 @Composable
@@ -36,7 +36,7 @@ fun DsLoadingContent(
 @DsPreview
 @Composable
 private fun DsLoadingContentPreview() {
-    ScoreTheme {
+    DsTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             DsLoadingContent()
         }

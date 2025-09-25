@@ -1,5 +1,9 @@
 package cz.sic.scores.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,34 +25,66 @@ data class ScoreDetailRoute(
     val mode: Mode
 )
 
+const val ANIM_DURATION = 400
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ScoresNavGraph(
     navController: NavHostController,
 ) {
 
-    NavHost(
-        navController = navController,
-        startDestination = ScoresListRoute,
-    ) {
-        composable<ScoresListRoute> {
-            ScoreListScreen(
-                onNavigateToDetail = { id, store ->
-                    navController.navigate(ScoreDetailRoute(id, store, Mode.View))
-                },
-                onNavigateToAddScore = {
-                    navController.navigate(ScoreDetailRoute(null, null, Mode.Add))
-                }
-            )
-        }
+    SharedTransitionLayout(
 
-        composable<ScoreDetailRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<ScoreDetailRoute>()
-            ScoreDetailScreen(
-                id = route.id,
-                store = route.store,
-                mode = route.mode,
-                onBack = { navController.popBackStack() }
-            )
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = ScoresListRoute,
+        ) {
+            composable<ScoresListRoute> {
+                ScoreListScreen(
+                    onNavigateToDetail = { id, store ->
+                        navController.navigate(ScoreDetailRoute(id, store, Mode.View))
+                    },
+                    onNavigateToAddScore = {
+                        navController.navigate(ScoreDetailRoute(null, null, Mode.Add))
+                    }
+                )
+            }
+
+            composable<ScoreDetailRoute>(
+                enterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                        animationSpec = tween(ANIM_DURATION)
+                    )
+                },
+                exitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Left,
+                        animationSpec = tween(ANIM_DURATION)
+                    )
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                        animationSpec = tween(ANIM_DURATION)
+                    )
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Companion.Right,
+                        animationSpec = tween(ANIM_DURATION)
+                    )
+                }
+            ) { backStackEntry ->
+                val route = backStackEntry.toRoute<ScoreDetailRoute>()
+                ScoreDetailScreen(
+                    id = route.id,
+                    store = route.store,
+                    mode = route.mode,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
+
 }

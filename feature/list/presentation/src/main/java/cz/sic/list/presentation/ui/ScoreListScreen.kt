@@ -37,7 +37,7 @@ import cz.sic.ds.components.DsLoadingContent
 import cz.sic.ds.components.ScoreItem
 import cz.sic.ds.components.DsScoreList
 import cz.sic.ds.components.ToolbarState
-import cz.sic.ds.theme.ScoreTheme
+import cz.sic.ds.theme.DsTheme
 import cz.sic.ds.utils.DsPreview
 import cz.sic.list.presentation.R
 import cz.sic.list.presentation.vm.ScoresListContract
@@ -163,7 +163,6 @@ fun ScoreListContent(
                 .align(Alignment.BottomEnd)
                 .padding(32.dp)
                 .wrapContentSize(),
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
             shape = FloatingActionButtonDefaults.largeShape
         ) {
             Icon(
@@ -212,7 +211,7 @@ fun EmptyContent() {
 @DsPreview
 @Composable
 fun EmptyContentPreview() {
-    ScoreTheme {
+    DsTheme {
         EmptyContent()
     }
 }
@@ -220,7 +219,7 @@ fun EmptyContentPreview() {
 @DsPreview
 @Composable
 private fun ScoreListContentPreview() {
-    ScoreTheme {
+    DsTheme {
         ScoreListContent(
             isLoading = true,
             uiState = ScoresListContract.UiData(
